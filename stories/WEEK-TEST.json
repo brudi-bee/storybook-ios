@@ -1,0 +1,46 @@
+{
+  "id": "test-uuid",
+  "title": "Lina und der Zauberwald",
+  "genre": "adventure",
+  "setting": "Zauberwald am Morgen",
+  "moral": "Freundschaft und Mut",
+  "createdAt": "2026-03-12",
+  "scenes": [
+    {
+      "index": 1,
+      "text": "Als Lina an diesem Morgen aufwachte, roch die Luft nach Zuckerwatte und frischen Blumen. Vor ihrem Fenster lag ein Pfad aus glitzernden Tautropfen. 'Wow!' machte Lina und zog ihre roten Stiefel an. Sie wollte wissen, wohin der Weg führte. Der Pfad endete an einem wunderschönen Zauberwald. Die Bäume leuchteten in Rosa und Gold, und kleine Schmetterlinge tanzten in der Luft.",
+      "imagePrompt": "A magical enchanted forest at morning sunrise with pink and golden trees, soft light filtering through, a winding path with dew drops, butterflies dancing in the air, dreamy children's book illustration style, soft pastel colors, whimsical and gentle atmosphere",
+      "bgmMood": "calm"
+    },
+    {
+      "index": 2,
+      "text": "Plötzlich hörte Lina ein leises Seufzen. Zwischen zwei buntblühenden Blumen saß ein kleiner, trauriger Falter. Seine Flügel glitzerten wie Seife in der Sonne, aber seine Augen waren traurig. 'Hallo', sagte Lina freundlich. 'Ich bin Lina. Warum bist du traurig?' Der Falter hob den Kopf. 'Ich bin Niko. Meine Freunde können nicht aus ihren Kokons kommen. Sie brauchen Sonne, aber die Wolken sind zu dicht.',",
+      "imagePrompt": "A cute sad little butterfly with iridescent glowing wings sitting between colorful flowers, a friendly young girl named Lina approaching gently, morning forest setting, soft children's book illustration style, warm and gentle colors",
+      "bgmMood": "curious"
+    },
+    {
+      "index": 3,
+      "text": "Lina sah zu den Kokons am Baum, die sanft zitterten. Sie wollte den Schmetterlingen helfen. 'Ich habe eine Idee!' rief sie fröhlich. Gemeinsam sammelten Lina und Niko glitzernde Tautropfen. Aber allein schafften sie es nicht, die Wolken zu vertreiben. 'Wir schaffen das', sagte Lina mutig. Sie nahm Nikos winzige Fühler in ihre Hand. Es fühlte sich warm und sanft an.",
+      "imagePrompt": "A young girl named Lina and a small glowing butterfly working together collecting dew drops, gentle teamwork scene, morning light, soft children's illustration style with warm friendship colors",
+      "bgmMood": "hopeful"
+    },
+    {
+      "index": 4,
+      "text": "Lina bekam einen Mut-Anfall. Sie setzte ihre rote Mütze auf den höchsten Ast. 'Hallo, liebe Sonne!' rief sie laut und fröhlich. 'Bitte komm und hilf uns!' Dann sang sie ihr Lieblingslied. Niko flatterte um sie herum und machte kleine Pirouetten. Die Wolken wurden dünner. Ein warmer Lichtstrahl brach durch. Aber es reichte noch nicht. Lina holte tief Luft. Gemeinsam könnten sie es schaffen!",
+      "imagePrompt": "A young girl named Lina shouting cheerfully to the sky wearing a red hat, a glowing butterfly dancing around her in pirouettes, light breaking through clouds, hopeful morning atmosphere, children's book illustration with warm golden tones",
+      "bgmMood": "uplifting"
+    },
+    {
+      "index": 5,
+      "text": "Lina nahm Nikos schimmernde Flügel und hielt sie in den Sonnenstrahl. Das Licht fing sich in den kleinen Wassertropfen darauf. 'Wir machen einen Regenbogen!' rief Lina begeistert. Der bunte Lichtstrahl tanzte durch den Wald. Plötzlich fingen alle Tropfen an zu glitzern. Ein wunderschöner kleiner Regenbogen leuchtete am Baum. Die Kokons begannen zu wackeln. Ein erstes Schmetterlingsflüglein stieß durch das Seide-Gemach.",
+      "imagePrompt": "A young girl named Lina and a glowing butterfly creating a small rainbow with dew drops and butterfly wings, magical light effects, chrysalises on a tree beginning to hatch, wonder and excitement, children's book illustration with rainbow colors",
+      "bgmMood": "magical"
+    },
+    {
+      "index": 6,
+      "text": "Puff! Puff! Puff! Ein Schmetterling nach dem anderen kam aus den Kokons. Sie alle tanzten um Lina und Niko herum. 'Danke!' zwitscherten sie fröhlich. 'Ihr seid die besten Freunde!' Lina lachte und strahlte. Sie hatte Mut gezeigt und eine wunderschöne Freundschaft gefunden. 'Auf Wiedersehen!' rief sie, als sie nach Hause ging. Niko flatterte neben ihr. 'Darf ich manchmal bei dir vorbeifliegen?' 'Immer!' sagte Lina und nahm ihn sanft auf ihre Hand. Gemeinsam gingen sie zurück in die aufgehende Sonne.",
+      "imagePrompt": "A joyful scene in the enchanted forest with a young girl named Lina surrounded by many colorful butterflies dancing in celebration, warm sunset colors, friendship and happiness theme, gentle children's book illustration style, golden hour lighting",
+      "bgmMood": "happy"
+    }
+  ]
+}
