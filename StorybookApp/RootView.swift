@@ -1,10 +1,13 @@
 import SwiftUI
 
 struct RootView: View {
-    @StateObject private var store = AppStore()
+    @StateObject private var store = SDAppStore()
 
     var body: some View {
         TabView {
+            HomeView()
+                .tabItem { Label("Start", systemImage: "house.fill") }
+
             GeneratorView()
                 .tabItem { Label("Generieren", systemImage: "wand.and.stars") }
 
