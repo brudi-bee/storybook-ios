@@ -4,6 +4,7 @@ struct HomeView: View {
     @EnvironmentObject var store: SDAppStore
     @State private var selectedStory: Story?
     @State private var showingStoryDetail = false
+    @State private var showingGenerator = false
     
     // 3 Dummy Stories für den Start
     let featuredStories: [FeaturedStory] = [
@@ -55,6 +56,9 @@ struct HomeView: View {
             .sheet(item: $selectedStory) { story in
                 ReaderView(story: story)
             }
+            .navigationDestination(isPresented: $showingGenerator) {
+                GeneratorView()
+            }
         }
     }
     
@@ -82,13 +86,13 @@ struct HomeView: View {
             Text("Magische Geschichten")
                 .font(.title.bold())
             
-            Text(f"{store.children.count > 0 ? "Für \\(store.children[0].name)" : "Für deine Kleinen"}")
+            Text(store.children.first?.name.map { "Für \($0)" } ?? "Für deine Kleinen")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
             
             // Quick Action Button
             Button {
-                // Navigate to generator
+                showingGenerator = true
             } label: {
                 HStack {
                     Image(systemName: "wand.and.stars")
