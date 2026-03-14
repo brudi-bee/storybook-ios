@@ -1,5 +1,8 @@
 import Foundation
 
+// MARK: - Shared Types
+// These types are used by both DTOs and SwiftData models
+
 enum ChildGender: String, CaseIterable, Codable, Identifiable {
     case female
     case male
@@ -14,12 +17,6 @@ enum ChildGender: String, CaseIterable, Codable, Identifiable {
         case .neutral: return "Neutral"
         }
     }
-}
-
-struct ChildProfile: Identifiable, Codable, Equatable {
-    var id = UUID()
-    var name: String
-    var gender: ChildGender
 }
 
 enum StoryLanguage: String, CaseIterable, Codable, Identifiable {
@@ -49,15 +46,8 @@ enum StoryGenre: String, CaseIterable, Codable, Identifiable {
     }
 }
 
-struct StoryRequest: Codable {
-    var language: StoryLanguage = .de
-    var genre: StoryGenre = .bedtime
-    var setting: String = "Zauberwald"
-    var moral: String = "Freundlichkeit"
-    var sceneCount: Int = 6
-    var ageRange: String = "3-6"
-}
-
+// MARK: - StoryScene
+// Shared struct used by both DTOs and SwiftData models (stored as JSON in SwiftData)
 struct StoryScene: Identifiable, Codable {
     var id = UUID()
     var index: Int
@@ -67,14 +57,33 @@ struct StoryScene: Identifiable, Codable {
     var illustrationTheme: String? // Theme identifier for consistent scene styling
 }
 
-struct Story: Identifiable, Codable {
+struct StoryRequest: Codable {
+    var language: StoryLanguage = .de
+    var genre: StoryGenre = .bedtime
+    var setting: String = "Zauberwald"
+    var moral: String = "Freundlichkeit"
+    var sceneCount: Int = 6
+    var ageRange: String = "3-6"
+}
+
+// MARK: - Data Transfer Objects (DTOs) for API
+// These structs are used for API communication and JSON encoding/decoding.
+// The main app models are the SwiftData models in Models/SDChildProfile.swift
+
+struct ChildProfileDTO: Identifiable, Codable, Equatable {
+    var id = UUID()
+    var name: String
+    var gender: ChildGender
+}
+
+struct StoryDTO: Identifiable, Codable {
     var id = UUID()
     var title: String
     var language: StoryLanguage
     var genre: StoryGenre
     var setting: String
     var moral: String
-    var children: [ChildProfile]
+    var children: [ChildProfileDTO]
     var scenes: [StoryScene]
     var createdAt = Date()
     
@@ -101,8 +110,8 @@ struct Story: Identifiable, Codable {
     }
 }
 
-// MARK: - Story Extension for Illustration
-extension Story {
+// MARK: - StoryDTO Extension for Illustration
+extension StoryDTO {
     func illustrationPrompt(for sceneIndex: Int) -> String {
         guard sceneIndex >= 0 && sceneIndex < scenes.count else { return "" }
         return scenes[sceneIndex].imagePrompt

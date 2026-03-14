@@ -1,18 +1,21 @@
 import Foundation
 import SwiftUI
 
+// MARK: - Legacy AppStore using UserDefaults persistence
+// This store uses DTOs for JSON persistence via UserDefaults.
+// For SwiftData-based persistence, use SDAppStore instead.
 @MainActor
 final class AppStore: ObservableObject {
-    @Published var children: [ChildProfile] = [] {
+    @Published var children: [ChildProfileDTO] = [] {
         didSet { persistence.saveChildren(children) }
     }
-    @Published var stories: [Story] = [] {
+    @Published var stories: [StoryDTO] = [] {
         didSet { persistence.saveStories(stories) }
     }
     @Published var request = StoryRequest()
 
     @Published var isGenerating = false
-    @Published var selectedStory: Story?
+    @Published var selectedStory: StoryDTO?
 
     let audioManager = AudioManager()
 
@@ -37,7 +40,7 @@ final class AppStore: ObservableObject {
             children[index].name = trimmed
             children[index].gender = gender
         } else if children.count < 2 {
-            children.append(ChildProfile(name: trimmed, gender: gender))
+            children.append(ChildProfileDTO(name: trimmed, gender: gender))
         }
     }
 

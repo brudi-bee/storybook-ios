@@ -131,8 +131,14 @@ final class BackendStoryService: ObservableObject, StoryGeneratorService {
         try self.init(endpoint: defaultURL, apiKey: nil)
     }
     
+    convenience init(apiService: APIService) throws {
+        // Convenience init that takes an APIService (for compatibility)
+        let defaultURL = URL(string: "https://api.storybook-ai.de/v1/stories/generate")
+        try self.init(endpoint: defaultURL, apiKey: nil)
+    }
+    
     // MARK: - Story Generation
-    func generateStory(request: StoryRequest, children: [ChildProfile]) async throws -> Story {
+    func generateStory(request: StoryRequest, children: [ChildProfileDTO]) async throws -> StoryDTO {
         lastError = nil
         isRetrying = false
         retryAttempt = 0
@@ -151,7 +157,7 @@ final class BackendStoryService: ObservableObject, StoryGeneratorService {
     }
     
     // MARK: - Retry Logic
-    private func executeWithRetry(payload: StoryGenerationPayload) async throws -> Story {
+    private func executeWithRetry(payload: StoryGenerationPayload) async throws -> StoryDTO {
         var lastError: Error?
         
         for attempt in 1...retryConfig.maxRetries {
@@ -214,7 +220,7 @@ final class BackendStoryService: ObservableObject, StoryGeneratorService {
     }
     
     // MARK: - API Request
-    private func performRequest(payload: StoryGenerationPayload) async throws -> Story {
+    private func performRequest(payload: StoryGenerationPayload) async throws -> StoryDTO {
         var request = URLRequest(url: endpoint)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -275,7 +281,7 @@ final class BackendStoryService: ObservableObject, StoryGeneratorService {
         do {
             let apiResponse = try decoder.decode(StoryAPIResponse.self, from: data)
             return mapAPIResponseToStory(apiResponse, children: payload.children.map { 
-                ChildProfile(name: $0.name, gender: ChildGender(rawValue: $0.gender) ?? .neutral)
+                ChildProfileDTO(name: $0.name, gender: ChildGender(rawValue: $0.gender) ?? .neutral)
             })
         } catch {
             throw StoryAPIError.decodingFailed(error)
@@ -283,7 +289,7 @@ final class BackendStoryService: ObservableObject, StoryGeneratorService {
     }
     
     // MARK: - Mapping
-    private func mapAPIResponseToStory(_ response: StoryAPIResponse, children: [ChildProfile]) -> Story {
+    private func mapAPIResponseToStory(_ response: StoryAPIResponse, children: [ChildProfileDTO]) -> StoryDTO {
         let scenes = response.scenes.map { apiScene in
             StoryScene(
                 index: apiScene.index,
@@ -293,7 +299,7 @@ final class BackendStoryService: ObservableObject, StoryGeneratorService {
             )
         }
         
-        return Story(
+        return StoryDTO(
             title: response.title,
             language: StoryLanguage(rawValue: response.language) ?? .de,
             genre: StoryGenre(rawValue: response.genre) ?? .bedtime,
@@ -362,7 +368,7 @@ final class HybridStoryService: ObservableObject, StoryGeneratorService {
         }
     }
     
-    func generateStory(request: StoryRequest, children: [ChildProfile]) async throws -> Story {
+    func generateStory(request: StoryRequest, children: [ChildProfileDTO]) async throws -> StoryDTO {
         if let backend = backendService, !usingFallback {
             do {
                 let story = try await backend.generateStory(request: request, children: children)

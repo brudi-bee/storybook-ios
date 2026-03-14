@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct GeneratorView: View {
-    @EnvironmentObject var store: AppStore
+    @EnvironmentObject var store: SDAppStore
 
     var body: some View {
         NavigationStack {
@@ -48,8 +48,22 @@ struct GeneratorView: View {
             }
             .navigationTitle("Märchen Generator")
             .navigationDestination(item: $store.selectedStory) { story in
-                ReaderView(story: story)
+                ReaderView(story: convertToDTO(story))
             }
         }
+    }
+    
+    private func convertToDTO(_ story: Story) -> StoryDTO {
+        return StoryDTO(
+            id: story.id,
+            title: story.title,
+            language: story.language,
+            genre: story.genre,
+            setting: story.setting,
+            moral: story.moral,
+            children: [],
+            scenes: story.scenes,
+            createdAt: story.createdAt
+        )
     }
 }

@@ -325,18 +325,28 @@ final class SDAppStore: ObservableObject {
         defer { isGenerating = false }
         
         do {
-            // Konvertiere SwiftData Profile zurück für Generator
-            let childProfiles = children.map { SDChildProfile(name: $0.name, gender: $0.gender, order: $0.order) }
-            let story = try await generator.generateStory(request: request, children: childProfiles)
+            // Konvertiere SwiftData Profile zu DTOs für Generator
+            let childProfiles = children.map { ChildProfileDTO(name: $0.name, gender: $0.gender) }
+            let storyDTO = try await generator.generateStory(request: request, children: childProfiles)
             
-            // Konvertiere zu SwiftData Story
+            // Konvertiere StoryDTO zu SwiftData Story
+            let scenes = storyDTO.scenes.map { sceneDTO in
+                StoryScene(
+                    index: sceneDTO.index,
+                    text: sceneDTO.text,
+                    imagePrompt: sceneDTO.imagePrompt,
+                    bgmMood: sceneDTO.bgmMood,
+                    illustrationTheme: sceneDTO.illustrationTheme
+                )
+            }
+            
             let sdStory = Story(
-                title: story.title,
-                language: story.language,
-                genre: story.genre,
-                setting: story.setting,
-                moral: story.moral,
-                scenes: story.scenes
+                title: storyDTO.title,
+                language: storyDTO.language,
+                genre: storyDTO.genre,
+                setting: storyDTO.setting,
+                moral: storyDTO.moral,
+                scenes: scenes
             )
             
             // Set character reference if available
@@ -376,21 +386,5 @@ final class SDAppStore: ObservableObject {
         } catch {
             print("SwiftData save error: \(error)")
         }
-    }
-}
-
-// Compatibility struct for generator
-struct SDChildProfile {
-    let name: String
-    let gender: ChildGender
-    let order: Int
-}
-
-// Extension für Generator-Service
-extension MockStoryGeneratorService {
-    func generateStory(request: StoryRequest, children: [SDChildProfile]) async throws -> Story {
-        // Convert to standard format
-        let stdChildren = children.map { ChildProfile(name: $0.name, gender: $0.gender) }
-        return try await generateStory(request: request, children: stdChildren)
     }
 }

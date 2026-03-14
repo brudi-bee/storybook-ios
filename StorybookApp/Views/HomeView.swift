@@ -33,7 +33,7 @@ struct HomeView: View {
             }
             .navigationTitle("Storybook")
             .sheet(item: $selectedStory) { story in
-                ReaderView(story: story)
+                ReaderView(story: convertToDTO(story))
             }
             .navigationDestination(isPresented: $showingGenerator) {
                 GeneratorView()
@@ -228,12 +228,23 @@ struct HomeView: View {
     }
     
     private func loadFeaturedStory(_ featured: FeaturedStory) {
-        // Convert featured to real Story and open
+        // Convert featured to DTO and open
         let scenes = [
             StoryScene(index: 1, text: "Es war einmal...", imagePrompt: "fantasy forest", bgmMood: "calm"),
             StoryScene(index: 2, text: "Und sie lebten glücklich bis ans Ende ihrer Tage.", imagePrompt: "happy ending", bgmMood: "peaceful")
         ]
         
+        let storyDTO = StoryDTO(
+            title: featured.title,
+            language: .de,
+            genre: featured.genre,
+            setting: featured.subtitle,
+            moral: "Freundschaft und Mut",
+            children: [],
+            scenes: scenes
+        )
+        
+        // Create a temporary SwiftData Story for the sheet binding
         let story = Story(
             title: featured.title,
             language: .de,
@@ -242,8 +253,21 @@ struct HomeView: View {
             moral: "Freundschaft und Mut",
             scenes: scenes
         )
-        
         selectedStory = story
+    }
+    
+    private func convertToDTO(_ story: Story) -> StoryDTO {
+        return StoryDTO(
+            id: story.id,
+            title: story.title,
+            language: story.language,
+            genre: story.genre,
+            setting: story.setting,
+            moral: story.moral,
+            children: [],
+            scenes: story.scenes,
+            createdAt: story.createdAt
+        )
     }
     
     private func refreshLibrary() async {

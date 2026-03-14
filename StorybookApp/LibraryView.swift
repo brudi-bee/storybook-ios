@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct LibraryView: View {
-    @EnvironmentObject var store: AppStore
+    @EnvironmentObject var store: SDAppStore
 
     var body: some View {
         NavigationStack {
@@ -15,7 +15,7 @@ struct LibraryView: View {
                 } else {
                     List(store.stories) { story in
                         NavigationLink {
-                            ReaderView(story: story)
+                            ReaderView(story: convertToDTO(story))
                         } label: {
                             VStack(alignment: .leading, spacing: 6) {
                                 Text(story.title)
@@ -33,5 +33,19 @@ struct LibraryView: View {
             }
             .navigationTitle("Bibliothek")
         }
+    }
+    
+    private func convertToDTO(_ story: Story) -> StoryDTO {
+        return StoryDTO(
+            id: story.id,
+            title: story.title,
+            language: story.language,
+            genre: story.genre,
+            setting: story.setting,
+            moral: story.moral,
+            children: [],
+            scenes: story.scenes,
+            createdAt: story.createdAt
+        )
     }
 }

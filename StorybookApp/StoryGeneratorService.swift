@@ -1,11 +1,11 @@
 import Foundation
 
 protocol StoryGeneratorService {
-    func generateStory(request: StoryRequest, children: [ChildProfile]) async throws -> Story
+    func generateStory(request: StoryRequest, children: [ChildProfileDTO]) async throws -> StoryDTO
 }
 
 struct MockStoryGeneratorService: StoryGeneratorService {
-    func generateStory(request: StoryRequest, children: [ChildProfile]) async throws -> Story {
+    func generateStory(request: StoryRequest, children: [ChildProfileDTO]) async throws -> StoryDTO {
         try await Task.sleep(nanoseconds: 400_000_000)
 
         let c1 = children.first?.name ?? "Luna"
@@ -41,7 +41,7 @@ struct MockStoryGeneratorService: StoryGeneratorService {
             )
         }
 
-        return Story(
+        return StoryDTO(
             title: request.language == .de ? "\(c1)s Gute-Nacht-Märchen" : "\(c1)'s Bedtime Tale",
             language: request.language,
             genre: request.genre,

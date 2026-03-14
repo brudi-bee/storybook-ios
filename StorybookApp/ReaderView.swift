@@ -2,10 +2,10 @@ import SwiftUI
 
 // MARK: - Professional Children's Book Reader View
 struct ReaderView: View {
-    @EnvironmentObject var store: AppStore
+    @EnvironmentObject var store: SDAppStore
     @Environment(\.dismiss) private var dismiss
     
-    let story: Story
+    let story: StoryDTO
     
     @State private var currentPage: Int = 0
     @State private var musicOn = true
@@ -325,13 +325,13 @@ enum PageTransition {
 
 // MARK: - Preview
 #Preview {
-    let sampleStory = Story(
+    let sampleStory = StoryDTO(
         title: "Die Traumkatze Klara",
         language: .de,
         genre: .bedtime,
         setting: "Kinderzimmer und Traumwelt",
         moral: "Mut und Freundschaft überwinden alle Ängste",
-        children: [ChildProfile(name: "Emma", gender: .female)],
+        children: [],
         scenes: [
             StoryScene(
                 index: 1,
@@ -359,6 +359,6 @@ enum PageTransition {
     
     NavigationStack {
         ReaderView(story: sampleStory)
-            .environmentObject(AppStore())
+            .environmentObject(SDAppStore())
     }
 }

@@ -4,7 +4,7 @@ struct AIAPIStoryGeneratorService: StoryGeneratorService {
     let endpoint: URL
     let apiKey: String
 
-    func generateStory(request: StoryRequest, children: [ChildProfile]) async throws -> Story {
+    func generateStory(request: StoryRequest, children: [ChildProfileDTO]) async throws -> StoryDTO {
         var req = URLRequest(url: endpoint)
         req.httpMethod = "POST"
         req.setValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -20,11 +20,11 @@ struct AIAPIStoryGeneratorService: StoryGeneratorService {
         }
 
         // Expect backend to return Story JSON matching app model.
-        return try JSONDecoder().decode(Story.self, from: data)
+        return try JSONDecoder().decode(StoryDTO.self, from: data)
     }
 }
 
 private struct StoryGenerationPayload: Codable {
     let request: StoryRequest
-    let children: [ChildProfile]
+    let children: [ChildProfileDTO]
 }
