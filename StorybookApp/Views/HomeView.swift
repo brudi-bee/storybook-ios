@@ -28,6 +28,9 @@ struct HomeView: View {
                 }
             }
             .background(Color(.systemGroupedBackground))
+            .refreshable {
+                await refreshLibrary()
+            }
             .navigationTitle("Storybook")
             .sheet(item: $selectedStory) { story in
                 ReaderView(story: story)
@@ -230,6 +233,17 @@ struct HomeView: View {
         )
         
         selectedStory = story
+    }
+    
+    private func refreshLibrary() async {
+        // Simulate network refresh with haptic feedback
+        await MainActor.run {
+            selectionFeedback.prepare()
+            store.loadStories()
+            selectionFeedback.selectionChanged()
+        }
+        // Small delay to show the refresh indicator
+        try? await Task.sleep(nanoseconds: 500_000_000)
     }
 }
 
