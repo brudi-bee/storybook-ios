@@ -5,7 +5,6 @@ struct HomeView: View {
     @EnvironmentObject var store: SDAppStore
     @State private var selectedStory: Story?
     @State private var showingStoryDetail = false
-    @State private var showingGenerator = false
     @State private var showingLibrary = false
     @State private var isRefreshing = false
     
@@ -34,9 +33,6 @@ struct HomeView: View {
             .navigationTitle("Storybook")
             .sheet(item: $selectedStory) { story in
                 ReaderView(story: convertToDTO(story))
-            }
-            .navigationDestination(isPresented: $showingGenerator) {
-                GeneratorView()
             }
             .navigationDestination(isPresented: $showingLibrary) {
                 LibraryView()
@@ -72,31 +68,16 @@ struct HomeView: View {
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
             
-            // Quick Action Button
-            Button {
-                showingGenerator = true
-            } label: {
-                HStack {
-                    Image(systemName: "wand.and.stars")
-                    Text("Neue Geschichte")
-                }
-                .font(.headline)
-                .foregroundStyle(.white)
-                .padding()
+            Text("Jede Woche neu kuratierte Geschichte")
+                .font(.footnote.weight(.semibold))
+                .foregroundStyle(.purple)
+                .padding(.horizontal, 14)
+                .padding(.vertical, 8)
                 .background(
                     Capsule()
-                        .fill(
-                            LinearGradient(
-                                colors: [.purple, .blue],
-                                startPoint: .leading,
-                                endPoint: .trailing
-                            )
-                        )
+                        .fill(Color.purple.opacity(0.12))
                 )
-            }
-            .padding(.top, 8)
-            .accessibilityLabel("Neue Geschichte erstellen")
-            .accessibilityHint("Tippe um eine neue Geschichte zu generieren")
+                .padding(.top, 8)
         }
         .padding()
         .background(
@@ -117,7 +98,7 @@ struct HomeView: View {
                 Spacer()
                 
                 Button("Alle") {
-                    // Show all
+                    showingLibrary = true
                 }
                 .font(.subheadline)
                 .foregroundStyle(.purple)

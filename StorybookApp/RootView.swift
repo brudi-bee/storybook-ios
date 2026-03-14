@@ -8,9 +8,6 @@ struct RootView: View {
             HomeView()
                 .tabItem { Label("Start", systemImage: "house.fill") }
 
-            GeneratorView()
-                .tabItem { Label("Generieren", systemImage: "wand.and.stars") }
-
             LibraryView()
                 .tabItem { Label("Bibliothek", systemImage: "books.vertical") }
 
