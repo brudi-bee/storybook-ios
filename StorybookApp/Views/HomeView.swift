@@ -233,6 +233,38 @@ struct HomeView: View {
     }
 }
 
+// MARK: - Card Style Constants
+enum CardStyle {
+    static let cornerRadius: CGFloat = 20
+    static let shadowColor = Color.black.opacity(0.1)
+    static let shadowRadius: CGFloat = 8
+    static let shadowX: CGFloat = 0
+    static let shadowY: CGFloat = 4
+}
+
+// MARK: - View Modifier for Unified Card Style
+struct StoryCardStyle: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .background(
+                RoundedRectangle(cornerRadius: CardStyle.cornerRadius)
+                    .fill(.background)
+                    .shadow(
+                        color: CardStyle.shadowColor,
+                        radius: CardStyle.shadowRadius,
+                        x: CardStyle.shadowX,
+                        y: CardStyle.shadowY
+                    )
+            )
+    }
+}
+
+extension View {
+    func storyCardStyle() -> some View {
+        modifier(StoryCardStyle())
+    }
+}
+
 // MARK: - Featured Story Card
 struct FeaturedStoryCard: View {
     let story: FeaturedStory
@@ -241,7 +273,7 @@ struct FeaturedStoryCard: View {
         VStack(alignment: .leading, spacing: 0) {
             // Image Area
             ZStack {
-                RoundedRectangle(cornerRadius: 20)
+                RoundedRectangle(cornerRadius: CardStyle.cornerRadius)
                     .fill(
                         LinearGradient(
                             colors: story.gradient,
@@ -266,10 +298,10 @@ struct FeaturedStoryCard: View {
                     )
                     .frame(height: 60)
                 }
-                .clipShape(RoundedRectangle(cornerRadius: 20))
+                .clipShape(RoundedRectangle(cornerRadius: CardStyle.cornerRadius))
             }
             .frame(width: 260, height: 180)
-            .clipShape(RoundedRectangle(cornerRadius: 20))
+            .clipShape(RoundedRectangle(cornerRadius: CardStyle.cornerRadius))
             
             // Text Area
             VStack(alignment: .leading, spacing: 4) {
@@ -285,11 +317,7 @@ struct FeaturedStoryCard: View {
             .padding(12)
             .frame(width: 260, alignment: .leading)
         }
-        .background(
-            RoundedRectangle(cornerRadius: 20)
-                .fill(.background)
-                .shadow(color: .black.opacity(0.1), radius: 8, x: 0, y: 4)
-        )
+        .storyCardStyle()
     }
 }
 
@@ -301,7 +329,7 @@ struct CompactStoryCard: View {
         VStack(alignment: .leading, spacing: 8) {
             // Image Placeholder
             ZStack {
-                RoundedRectangle(cornerRadius: 16)
+                RoundedRectangle(cornerRadius: CardStyle.cornerRadius)
                     .fill(genreColor(for: story.genre).opacity(0.3))
                     .frame(height: 120)
                 
@@ -323,11 +351,7 @@ struct CompactStoryCard: View {
             .padding(.horizontal, 8)
             .padding(.bottom, 8)
         }
-        .background(
-            RoundedRectangle(cornerRadius: 20)
-                .fill(.background)
-                .shadow(color: .black.opacity(0.08), radius: 8, x: 0, y: 3)
-        )
+        .storyCardStyle()
     }
     
     private func genreColor(for genre: StoryGenre) -> Color {
