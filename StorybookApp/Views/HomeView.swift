@@ -68,7 +68,7 @@ struct HomeView: View {
             Text("Magische Geschichten")
                 .font(.title.bold())
             
-            Text(store.children.first?.name.map { "Für \($0)" } ?? "Für deine Kleinen")
+            Text(store.children.first.map { "Für \($0.name)" } ?? "Für deine Kleinen")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
             
@@ -289,29 +289,6 @@ enum CardStyle {
     static let shadowRadius: CGFloat = 8
     static let shadowX: CGFloat = 0
     static let shadowY: CGFloat = 4
-}
-
-// MARK: - View Modifier for Unified Card Style
-struct StoryCardStyle: ViewModifier {
-    func body(content: Content) -> some View {
-        content
-            .background(
-                RoundedRectangle(cornerRadius: CardStyle.cornerRadius)
-                    .fill(.background)
-                    .shadow(
-                        color: CardStyle.shadowColor,
-                        radius: CardStyle.shadowRadius,
-                        x: CardStyle.shadowX,
-                        y: CardStyle.shadowY
-                    )
-            )
-    }
-}
-
-extension View {
-    func storyCardStyle() -> some View {
-        modifier(StoryCardStyle())
-    }
 }
 
 // MARK: - Featured Story Card
