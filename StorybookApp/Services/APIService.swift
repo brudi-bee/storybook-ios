@@ -49,7 +49,7 @@ struct GeneratedStory: Codable {
 }
 
 // MARK: - Retry Configuration
-private struct RetryConfig {
+struct RetryConfig {
     let maxRetries: Int = 3
     let baseDelay: TimeInterval = 1.0
     let maxDelay: TimeInterval = 30.0
@@ -222,5 +222,20 @@ extension APIService {
             throw APIError.fileNotFound
         }
         return try await fetchStory(from: url)
+    }
+    
+    /// Führt einen Health Check für einen Endpunkt durch
+    func healthCheck(url: URL) async -> Bool {
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        request.timeoutInterval = 10
+        
+        do {
+            let (_, response) = try await urlSession.data(for: request)
+            guard let httpResponse = response as? HTTPURLResponse else { return false }
+            return (200...299).contains(httpResponse.statusCode)
+        } catch {
+            return false
+        }
     }
 }

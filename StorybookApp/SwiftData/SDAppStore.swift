@@ -61,10 +61,15 @@ final class SDAppStore: ObservableObject {
     @Published var lastGenerationError: String?
     @Published var isRetrying: Bool = false
     
+    // MARK: - Avatar Generation
+    @Published var avatarGenerationStatus: AvatarGenerationStatus = .notStarted
+    @Published var isGeneratingAvatar = false
+    
     let audioManager = AudioManager()
     
     private let generator: StoryGeneratorService
     private let apiService: APIService
+    private var avatarService: AvatarGenerationService?
     
     init(generator: StoryGeneratorService? = nil) {
         // APIService mit Retry-Config initialisieren
@@ -94,6 +99,9 @@ final class SDAppStore: ObservableObject {
             self.modelContainer = try ModelContainer(for: schema, configurations: [config])
             self.modelContext = ModelContext(modelContainer)
             
+            // Initialize avatar service
+            self.avatarService = createAvatarService()
+            
             // Initial Load
             loadChildren()
             loadStories()
@@ -102,6 +110,96 @@ final class SDAppStore: ObservableObject {
         } catch {
             fatalError("Failed to initialize SwiftData: \(error)")
         }
+    }
+    
+    // MARK: - Avatar Service
+    private func createAvatarService() -> AvatarGenerationService {
+        guard let settings = settings else {
+            return MockAvatarService()
+        }
+        return AvatarServiceFactory.createService(useRealGeneration: settings.useRealAvatarGeneration)
+    }
+    
+    func refreshAvatarService() {
+        self.avatarService = createAvatarService()
+    }
+    
+    // MARK: - Avatar Generation
+    func generateAvatar(for child: ChildProfile, configuration: AvatarConfiguration) async {
+        guard let service = avatarService else {
+            avatarGenerationStatus = .failed(error: "Avatar service not available")
+            return
+        }
+        
+        isGeneratingAvatar = true
+        avatarGenerationStatus = .generating(step: "Erstelle Avatar...")
+        
+        do {
+            let gender = GenderSelection.from(child.gender)
+            let result = try await service.generateAvatar(
+                for: configuration,
+                name: child.name,
+                gender: gender
+            )
+            
+            child.setAvatarImage(result.imageData)
+            child.updateAvatarConfiguration(configuration)
+            
+            // Generate character sheet if enabled
+            if settings?.autoGenerateCharacterSheet ?? false {
+                avatarGenerationStatus = .generating(step: "Erstelle Charakter-Referenz...")
+                let sheetResult = try await service.generateCharacterSheet(
+                    for: configuration,
+                    name: child.name,
+                    gender: gender
+                )
+                
+                let sheet = CharacterSheet(
+                    frontView: sheetResult.frontView,
+                    sideView: sheetResult.sideView,
+                    backView: sheetResult.backView
+                )
+                child.setCharacterSheet(sheet)
+            }
+            
+            saveContext()
+            loadChildren()
+            
+            avatarGenerationStatus = .completed
+            isGeneratingAvatar = false
+            
+        } catch let error as AvatarGenerationError {
+            avatarGenerationStatus = .failed(error: error.localizedDescription ?? "Unknown error")
+            isGeneratingAvatar = false
+        } catch {
+            avatarGenerationStatus = .failed(error: error.localizedDescription)
+            isGeneratingAvatar = false
+        }
+    }
+    
+    func generateSceneImages(for story: Story, character: ChildProfile) async {
+        guard let service = avatarService,
+              let characterRef = character.characterSheet?.frontView ?? character.avatarImageData else {
+            return
+        }
+        
+        let config = character.avatarConfiguration
+        
+        for scene in story.scenes {
+            do {
+                let result = try await service.generateSceneImage(
+                    scene: scene,
+                    characterReference: characterRef,
+                    configuration: config
+                )
+                
+                story.setSceneImage(result.imageData, forSceneIndex: scene.index)
+            } catch {
+                print("Failed to generate scene \(scene.index): \(error)")
+            }
+        }
+        
+        saveContext()
     }
     
     // MARK: - Children
@@ -133,6 +231,11 @@ final class SDAppStore: ObservableObject {
             modelContext.delete(children[1])
             loadChildren()
         }
+    }
+    
+    func updateChildAvatar(_ child: ChildProfile, configuration: AvatarConfiguration) {
+        child.updateAvatarConfiguration(configuration)
+        saveContext()
     }
     
     // MARK: - Stories
@@ -171,6 +274,11 @@ final class SDAppStore: ObservableObject {
         saveContext()
     }
     
+    func setCharacterReference(for story: Story, imageData: Data) {
+        story.setCharacterReference(imageData)
+        saveContext()
+    }
+    
     // MARK: - Settings
     func loadOrCreateSettings() {
         let descriptor = FetchDescriptor<AppSettings>()
@@ -182,6 +290,15 @@ final class SDAppStore: ObservableObject {
             settings = newSettings
             saveContext()
         }
+    }
+    
+    func updateSettings(_ updates: (AppSettings) -> Void) {
+        guard let settings = settings else { return }
+        updates(settings)
+        saveContext()
+        
+        // Refresh avatar service if setting changed
+        refreshAvatarService()
     }
     
     // MARK: - Generator Factory
@@ -222,9 +339,22 @@ final class SDAppStore: ObservableObject {
                 scenes: story.scenes
             )
             
+            // Set character reference if available
+            if let firstChild = children.first,
+               let avatarData = firstChild.avatarImageData {
+                sdStory.setCharacterReference(avatarData)
+            }
+            
             addStory(sdStory)
             selectedStory = sdStory
             lastGenerationError = nil
+            
+            // Auto-generate scene images if enabled
+            if settings?.useRealAvatarGeneration ?? false,
+               let firstChild = children.first {
+                await generateSceneImages(for: sdStory, character: firstChild)
+            }
+            
         } catch let error as APIError {
             lastGenerationError = error.localizedDescription
             print("Story generation failed: \(error.localizedDescription ?? error.localizedDescription)")
