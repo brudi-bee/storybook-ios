@@ -35,6 +35,9 @@ struct HomeView: View {
             .navigationDestination(isPresented: $showingGenerator) {
                 GeneratorView()
             }
+            .navigationDestination(isPresented: $showingLibrary) {
+                LibraryView()
+            }
         }
     }
     
@@ -182,6 +185,29 @@ struct HomeView: View {
                     }
                 }
                 .padding(.horizontal)
+                
+                // "Alle anzeigen" Button when >6 stories
+                if store.stories.count > 6 {
+                    Button {
+                        showingLibrary = true
+                    } label: {
+                        HStack {
+                            Text("Alle anzeigen")
+                                .font(.subheadline.weight(.medium))
+                            Image(systemName: "chevron.right")
+                                .font(.caption.weight(.semibold))
+                        }
+                        .foregroundStyle(.purple)
+                        .padding(.vertical, 8)
+                        .padding(.horizontal, 16)
+                        .background(
+                            Capsule()
+                                .fill(Color.purple.opacity(0.1))
+                        )
+                    }
+                    .frame(maxWidth: .infinity, alignment: .center)
+                    .padding(.top, 8)
+                }
             }
         }
         .padding(.vertical, 8)
