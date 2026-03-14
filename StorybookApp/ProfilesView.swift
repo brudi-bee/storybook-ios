@@ -1,27 +1,23 @@
 import SwiftUI
-import SwiftData
+import UIKit
 
 struct ProfilesView: View {
-    @Environment(\.modelContext) private var modelContext
-    @Query(sort: \ChildProfile.order) private var children: [ChildProfile]
+    @EnvironmentObject var store: SDAppStore
     
     @State private var selectedChild: ChildProfile?
-    @State private var showAvatarCreation = false
-    @State private var showEditSheet = false
     
     var body: some View {
         NavigationStack {
             List {
-                ForEach(children) { child in
+                ForEach(store.children) { child in
                     ChildProfileRow(child: child)
                         .contentShape(Rectangle())
                         .onTapGesture {
                             selectedChild = child
-                            showEditSheet = true
                         }
                 }
                 
-                if children.count < 2 {
+                if store.children.count < 2 {
                     AddChildButton {
                         createNewChild()
                     }
@@ -41,13 +37,9 @@ struct ProfilesView: View {
     }
     
     private func createNewChild() {
-        let newChild = ChildProfile(
-            name: "",
-            gender: .neutral,
-            order: children.count
-        )
-        modelContext.insert(newChild)
-        selectedChild = newChild
+        if let newChild = store.createEmptyChild() {
+            selectedChild = newChild
+        }
     }
 }
 
@@ -155,7 +147,7 @@ struct AddChildButton: View {
 // MARK: - Edit Profile Sheet
 struct EditProfileSheet: View {
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.modelContext) private var modelContext
+    @EnvironmentObject var store: SDAppStore
     
     let child: ChildProfile
     
@@ -274,11 +266,7 @@ struct EditProfileSheet: View {
         child.name = name.trimmingCharacters(in: .whitespacesAndNewlines)
         child.genderRaw = gender.rawValue
         
-        do {
-            try modelContext.save()
-            dismiss()
-        } catch {
-            print("Failed to save: \(error)")
-        }
+        store.persistChanges()
+        dismiss()
     }
 }

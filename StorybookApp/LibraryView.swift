@@ -10,7 +10,7 @@ struct LibraryView: View {
                     ContentUnavailableView(
                         "Noch keine Geschichten",
                         systemImage: "book.closed",
-                        description: Text("Erstelle deine erste Geschichte im Generator.")
+                        description: Text("Öffne eine empfohlene Geschichte auf der Startseite.")
                     )
                 } else {
                     List(store.stories) { story in

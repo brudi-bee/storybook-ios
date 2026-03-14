@@ -225,6 +225,22 @@ final class SDAppStore: ObservableObject {
         
         saveContext()
     }
+
+    @discardableResult
+    func createEmptyChild() -> ChildProfile? {
+        guard children.count < 2 else { return nil }
+        let child = ChildProfile(name: "", gender: .neutral, order: children.count)
+        modelContext.insert(child)
+        saveContext()
+        loadChildren()
+        return child
+    }
+
+    func persistChanges() {
+        saveContext()
+        loadChildren()
+        loadStories()
+    }
     
     func removeSecondChildIfNeeded(enabled: Bool) {
         if !enabled, children.count > 1 {

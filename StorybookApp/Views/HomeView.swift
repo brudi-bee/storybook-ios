@@ -233,15 +233,24 @@ struct HomeView: View {
 
         let scenes = buildAdventureStoryScenes(for: child)
 
-        // Create a temporary SwiftData Story for the sheet binding
+        let title = "\(child.name) und die Karte der 7 Monde"
+
+        // Reuse existing story if already generated
+        if let existing = store.stories.first(where: { $0.title == title }) {
+            selectedStory = existing
+            return
+        }
+
+        // Persist story so it appears in the full library
         let story = Story(
-            title: "\(child.name) und die Karte der 7 Monde",
+            title: title,
             language: .de,
             genre: .adventure,
             setting: "Tal der Sternenbrücken",
             moral: "Mut wächst, wenn man anderen hilft.",
             scenes: scenes
         )
+        store.addStory(story)
         selectedStory = story
     }
 
