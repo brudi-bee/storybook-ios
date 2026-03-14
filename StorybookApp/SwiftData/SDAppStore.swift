@@ -53,8 +53,8 @@ final class SDAppStore: ObservableObject {
     @Published var request = StoryRequest()
     @Published var settings: AppSettings?
     
-    // Featured stories from app store
-    @Published var featuredStories: [FeaturedStory] = FeaturedStory.defaultStories
+    // Featured stories shown on Home (derived from library)
+    @Published var featuredStories: [FeaturedStory] = []
     
     @Published var isGenerating = false
     @Published var selectedStory: Story?
@@ -106,6 +106,8 @@ final class SDAppStore: ObservableObject {
             loadChildren()
             loadStories()
             loadOrCreateSettings()
+            ensureInitialLibraryStories()
+            refreshFeaturedFromLibrary()
             
         } catch {
             fatalError("Failed to initialize SwiftData: \(error)")
@@ -224,6 +226,8 @@ final class SDAppStore: ObservableObject {
         }
         
         saveContext()
+        ensureInitialLibraryStories()
+        refreshFeaturedFromLibrary()
     }
 
     @discardableResult
@@ -240,6 +244,8 @@ final class SDAppStore: ObservableObject {
         saveContext()
         loadChildren()
         loadStories()
+        ensureInitialLibraryStories()
+        refreshFeaturedFromLibrary()
     }
     
     func removeSecondChildIfNeeded(enabled: Bool) {
@@ -260,6 +266,7 @@ final class SDAppStore: ObservableObject {
             sortBy: [SortDescriptor(\.createdAt, order: .reverse)]
         )
         stories = (try? modelContext.fetch(descriptor)) ?? []
+        refreshFeaturedFromLibrary()
     }
     
     func addStory(_ story: Story) {
@@ -283,6 +290,135 @@ final class SDAppStore: ObservableObject {
         modelContext.delete(story)
         saveContext()
         loadStories()
+    }
+
+    func refreshFeaturedFromLibrary() {
+        featuredStories = stories.prefix(3).map { story in
+            FeaturedStory(
+                id: story.id,
+                title: story.title,
+                subtitle: story.setting,
+                genre: story.genre,
+                color: colorForGenre(story.genre),
+                gradient: gradientForGenre(story.genre),
+                image: iconForGenre(story.genre)
+            )
+        }
+    }
+
+    private func ensureInitialLibraryStories() {
+        guard stories.isEmpty, let child = children.first, !child.name.isEmpty else { return }
+
+        let baseName = child.name
+        let pronoun = child.gender == .female ? "sie" : child.gender == .male ? "er" : "sie"
+
+        let story1 = Story(
+            title: "Die Karte der 7 Monde",
+            language: .de,
+            genre: .adventure,
+            setting: "Tal der Sternenbrücken",
+            moral: "Mut wächst, wenn man anderen hilft.",
+            scenes: buildScenes(title: "Die Karte der 7 Monde", hero: baseName, pronoun: pronoun, mood: "adventure")
+        )
+
+        let story2 = Story(
+            title: "Das Geheimnis vom Leuchtturm",
+            language: .de,
+            genre: .adventure,
+            setting: "Klippenhafen",
+            moral: "Gemeinsam findet man den Weg.",
+            scenes: buildScenes(title: "Das Geheimnis vom Leuchtturm", hero: baseName, pronoun: pronoun, mood: "calm")
+        )
+
+        let story3 = Story(
+            title: "Die Brücke aus Morgenlicht",
+            language: .de,
+            genre: .adventure,
+            setting: "Wolkenpass",
+            moral: "Vertrauen macht stark.",
+            scenes: buildScenes(title: "Die Brücke aus Morgenlicht", hero: baseName, pronoun: pronoun, mood: "peaceful")
+        )
+
+        modelContext.insert(story1)
+        modelContext.insert(story2)
+        modelContext.insert(story3)
+        saveContext()
+        loadStories()
+    }
+
+    private func buildScenes(title: String, hero: String, pronoun: String, mood: String) -> [StoryScene] {
+        let lines = [
+            "Am Abend entdeckte \(hero) eine alte Spur im Sand.",
+            "Die Spur führte zu einem Tor aus Licht.",
+            "Leise trat \(hero) hindurch und hielt die Luft an.",
+            "Hinter dem Tor wartete eine Karte mit drei Zeichen.",
+            "Ein Windstoß drehte die Karte Richtung Norden.",
+            "\(hero) folgte dem Weg über eine schmale Brücke.",
+            "Unter der Brücke funkelte ein Fluss wie Glas.",
+            "Ein kleiner Vogel zeigte \(hero) den nächsten Pfad.",
+            "Am Hügel stand ein steinerner Kompass.",
+            "Der Kompass sprang erst an, als \(hero) freundlich sprach.",
+            "Dann öffnete sich eine verborgene Tür im Felsen.",
+            "Drinnen lag ein Schlüssel, warm wie Sonnenlicht.",
+            "Mit dem Schlüssel begann ein leises Summen im Tal.",
+            "\(hero) merkte: Der Weg wurde heller.",
+            "Am Ende erschien eine Brücke aus Morgenlicht.",
+            "\(hero) machte einen Schritt, dann noch einen.",
+            "Auf der anderen Seite wartete ein ruhiger Garten.",
+            "Dort lag eine kleine Laterne mit Sternenmuster.",
+            "Als \(hero) sie anhob, klang eine sanfte Melodie.",
+            "Die Melodie führte zu einem alten Leuchtturm.",
+            "Der Turm war dunkel, doch \(hero) blieb mutig.",
+            "Oben im Turm fand \(hero) ein Zahnrad aus Silber.",
+            "Mit dem Zahnrad setzte sich ein Uhrwerk in Bewegung.",
+            "Licht wanderte über Dächer, Wälder und Felder.",
+            "Die Nacht wirkte plötzlich freundlich und weich.",
+            "\(hero) lächelte, weil \(pronoun) den Weg gefunden hatte.",
+            "Ein Fuchs nickte dankbar vom Rand des Pfads.",
+            "Gemeinsam gingen sie zurück zum Dorf.",
+            "Am Fenster stellte \(hero) die Laterne ab.",
+            "Mit einem warmen Gefühl schlief \(hero) friedlich ein."
+        ]
+
+        return lines.enumerated().map { idx, line in
+            StoryScene(
+                index: idx + 1,
+                text: line,
+                imagePrompt: "children's book \(title) scene \(idx + 1), hero \(hero), cozy adventure",
+                bgmMood: mood,
+                illustrationTheme: "adventure"
+            )
+        }
+    }
+
+    private func colorForGenre(_ genre: StoryGenre) -> Color {
+        switch genre {
+        case .adventure: return .orange
+        case .friendship: return .green
+        case .fantasy: return .purple
+        case .animals: return .brown
+        case .bedtime: return .blue
+        }
+    }
+
+    private func gradientForGenre(_ genre: StoryGenre) -> [Color] {
+        switch genre {
+        case .adventure: return [.orange, .red]
+        case .friendship: return [.green, .teal]
+        case .fantasy: return [.purple, .pink]
+        case .animals: return [.brown, .orange]
+        case .bedtime: return [.blue, .indigo]
+        }
+    }
+
+    private func iconForGenre(_ genre: StoryGenre) -> String {
+        switch genre {
+        case .adventure: return "map.fill"
+        case .friendship: return "heart.fill"
+        case .fantasy: return "sparkles"
+        case .animals: return "pawprint.fill"
+        case .bedtime: return "moon.fill"
+        }
     }
     
     func toggleFavorite(_ story: Story) {
