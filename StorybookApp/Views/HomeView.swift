@@ -233,7 +233,7 @@ struct HomeView: View {
 
         let scenes = buildAdventureStoryScenes(for: child)
 
-        let title = "\(child.name) und die Karte der 7 Monde"
+        let title = "Die Karte der 7 Monde"
 
         // Reuse existing story if already generated
         if let existing = store.stories.first(where: { $0.title == title }) {
