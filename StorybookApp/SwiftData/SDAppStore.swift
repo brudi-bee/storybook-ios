@@ -2,6 +2,47 @@ import Foundation
 import SwiftUI
 import SwiftData
 
+// MARK: - Featured Story Model
+struct FeaturedStory: Identifiable, Sendable {
+    let id: UUID
+    let title: String
+    let subtitle: String
+    let genre: StoryGenre
+    let color: Color
+    let gradient: [Color]
+    let image: String
+    
+    static let defaultStories: [FeaturedStory] = [
+        FeaturedStory(
+            id: UUID(),
+            title: "Luna und der Sternenwald",
+            subtitle: "Ein magisches Abenteuer",
+            genre: .fantasy,
+            color: .purple,
+            gradient: [.purple, .pink],
+            image: "sparkles"
+        ),
+        FeaturedStory(
+            id: UUID(),
+            title: "Max und die Mutprobe",
+            subtitle: "Wenn Angst zu Freundschaft wird",
+            genre: .adventure,
+            color: .orange,
+            gradient: [.orange, .red],
+            image: "flame"
+        ),
+        FeaturedStory(
+            id: UUID(),
+            title: "Die Freundschaftsinsel",
+            subtitle: "Zusammen sind wir stark",
+            genre: .friendship,
+            color: .green,
+            gradient: [.green, .teal],
+            image: "leaf"
+        )
+    ]
+}
+
 @MainActor
 final class SDAppStore: ObservableObject {
     private let modelContainer: ModelContainer
@@ -11,6 +52,9 @@ final class SDAppStore: ObservableObject {
     @Published var stories: [Story] = []
     @Published var request = StoryRequest()
     @Published var settings: AppSettings?
+    
+    // Featured stories from app store
+    @Published var featuredStories: [FeaturedStory] = FeaturedStory.defaultStories
     
     @Published var isGenerating = false
     @Published var selectedStory: Story?

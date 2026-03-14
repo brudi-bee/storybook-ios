@@ -5,37 +5,8 @@ struct HomeView: View {
     @State private var selectedStory: Story?
     @State private var showingStoryDetail = false
     @State private var showingGenerator = false
-    
-    // 3 Dummy Stories für den Start
-    let featuredStories: [FeaturedStory] = [
-        FeaturedStory(
-            id: UUID(),
-            title: "Luna und der Sternenwald",
-            subtitle: "Ein magisches Abenteuer",
-            genre: .fantasy,
-            color: .purple,
-            gradient: [.purple, .pink],
-            image: "sparkles"
-        ),
-        FeaturedStory(
-            id: UUID(),
-            title: "Max und die Mutprobe",
-            subtitle: "Wenn Angst zu Freundschaft wird",
-            genre: .adventure,
-            color: .orange,
-            gradient: [.orange, .red],
-            image: "flame"
-        ),
-        FeaturedStory(
-            id: UUID(),
-            title: "Die Freundschaftsinsel",
-            subtitle: "Zusammen sind wir stark",
-            genre: .friendship,
-            color: .green,
-            gradient: [.green, .teal],
-            image: "leaf"
-        )
-    ]
+    @State private var showingLibrary = false
+    @State private var isRefreshing = false
     
     var body: some View {
         NavigationStack {
@@ -143,7 +114,7 @@ struct HomeView: View {
             // Horizontal Scroll
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 16) {
-                    ForEach(featuredStories) { story in
+                    ForEach(store.featuredStories) { story in
                         FeaturedStoryCard(story: story)
                             .onTapGesture {
                                 // Load story
@@ -225,17 +196,6 @@ struct HomeView: View {
         
         selectedStory = story
     }
-}
-
-// MARK: - Featured Story Model
-struct FeaturedStory: Identifiable {
-    let id: UUID
-    let title: String
-    let subtitle: String
-    let genre: StoryGenre
-    let color: Color
-    let gradient: [Color]
-    let image: String
 }
 
 // MARK: - Featured Story Card
