@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 struct HomeView: View {
     @EnvironmentObject var store: SDAppStore
@@ -7,6 +8,10 @@ struct HomeView: View {
     @State private var showingGenerator = false
     @State private var showingLibrary = false
     @State private var isRefreshing = false
+    
+    // Haptic feedback generators
+    private let selectionFeedback = UISelectionFeedbackGenerator()
+    private let impactFeedback = UIImpactFeedbackGenerator(style: .light)
     
     var body: some View {
         NavigationStack {
@@ -117,6 +122,8 @@ struct HomeView: View {
                     ForEach(store.featuredStories) { story in
                         FeaturedStoryCard(story: story)
                             .onTapGesture {
+                                // Haptic feedback
+                                impactFeedback.impactOccurred()
                                 // Load story
                                 loadFeaturedStory(story)
                             }
@@ -168,6 +175,8 @@ struct HomeView: View {
                     ForEach(store.stories.prefix(6)) { story in
                         CompactStoryCard(story: story)
                             .onTapGesture {
+                                // Haptic feedback
+                                selectionFeedback.selectionChanged()
                                 selectedStory = story
                             }
                     }

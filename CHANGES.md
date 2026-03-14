@@ -5,6 +5,13 @@ Alle relevanten Änderungen am Storybook-iOS-Projekt.
 ## [Unreleased]
 
 ### Added
+- **2025-03-14**: HomeView Code Review Improvements - Extraktion der FeaturedStories
+  - `FeaturedStory` Modell in SDAppStore verschoben mit `defaultStories` statischer Property
+  - `@Published var featuredStories` in SDAppStore für zentrale Verwaltung
+  - HomeView verwendet jetzt `store.featuredStories` statt lokalem Array
+  - Dupliziertes `FeaturedStory` Struct aus HomeView entfernt
+
+### Added
 - **2025-03-12**: `APIService` neu implementiert
   - URLSession-basierter HTTP-Client mit Retry-Logik
   - Exponential Backoff mit 3 Versuchen und Jitter
