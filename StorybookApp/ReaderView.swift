@@ -1,103 +1,364 @@
 import SwiftUI
 
+// MARK: - Professional Children's Book Reader View
 struct ReaderView: View {
     @EnvironmentObject var store: AppStore
+    @Environment(\.dismiss) private var dismiss
+    
     let story: Story
-    @State private var sceneIndex = 0
+    
+    @State private var currentPage: Int = 0
     @State private var musicOn = true
-    @State private var sleepMinutes = 0
-
+    @State private var showMenu = false
+    @State private var pageTransition: PageTransition = .none
+    @State private var isAnimating = false
+    
+    // MARK: - Computed Properties
+    private var currentScene: StoryScene {
+        story.scenes[min(currentPage, story.scenes.count - 1)]
+    }
+    
+    private var progressPercentage: Double {
+        story.progressPercentage(for: currentPage)
+    }
+    
+    private var canGoNext: Bool {
+        currentPage < story.scenes.count - 1
+    }
+    
+    private var canGoPrevious: Bool {
+        currentPage > 0
+    }
+    
+    // MARK: - Body
     var body: some View {
-        VStack(spacing: 16) {
-            VStack(alignment: .leading, spacing: 8) {
-                Text(story.title)
-                    .font(.largeTitle.bold())
-                Text("\(story.genre.displayName) · \(story.setting)")
-                    .foregroundStyle(.secondary)
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-
-            RoundedRectangle(cornerRadius: 18)
-                .fill(LinearGradient(colors: [.blue.opacity(0.35), .purple.opacity(0.25)], startPoint: .topLeading, endPoint: .bottomTrailing))
-                .frame(height: 180)
-                .overlay {
-                    VStack(spacing: 8) {
-                        Image(systemName: "photo")
-                            .font(.system(size: 34))
-                        Text("Dummy Bild Szene \(scene.index)")
-                            .font(.footnote)
-                    }
-                    .foregroundStyle(.secondary)
+        ZStack {
+            // Background
+            ProfessionalTheme.Gradients.warmBackground
+                .ignoresSafeArea()
+            
+            VStack(spacing: 0) {
+                // Top Navigation Bar
+                topBar
+                    .padding(.horizontal, 20)
+                    .padding(.top, 8)
+                
+                // Main Content Area
+                ZStack {
+                    // Illustration Area (70%)
+                    illustrationArea
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    
+                    // Navigation Arrows
+                    navigationArrows
                 }
-
-            ScrollView {
-                Text(scene.text)
-                    .font(.title3)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.vertical, 4)
-            }
-
-            HStack {
-                Button("Zurück") {
-                    sceneIndex = max(0, sceneIndex - 1)
-                }
-                .disabled(sceneIndex == 0)
-
-                Spacer()
-
-                Toggle("BGM", isOn: $musicOn)
-                    .toggleStyle(.switch)
-                    .frame(width: 120)
-                    .onChange(of: musicOn) { _, newValue in
-                        store.audioManager.setEnabled(newValue)
-                    }
-
-                Spacer()
-
-                Button("Weiter") {
-                    sceneIndex = min(story.scenes.count - 1, sceneIndex + 1)
-                }
-                .disabled(sceneIndex >= story.scenes.count - 1)
-            }
-
-            VStack(alignment: .leading, spacing: 8) {
-                HStack {
-                    Text("Sleep Timer")
-                    Spacer()
-                    Picker("", selection: $sleepMinutes) {
-                        Text("Aus").tag(0)
-                        Text("10m").tag(10)
-                        Text("20m").tag(20)
-                        Text("30m").tag(30)
-                    }
-                    .pickerStyle(.segmented)
-                    .frame(maxWidth: 240)
-                }
-
-                HStack {
-                    Text("Lautstärke")
-                    Slider(value: Binding(
-                        get: { Double(store.audioManager.volume) },
-                        set: { store.audioManager.volume = Float($0) }
-                    ), in: 0...0.5)
-                }
+                
+                // Text Card (30%)
+                textCard
             }
         }
-        .padding()
-        .navigationTitle("Lesemodus")
-        .navigationBarTitleDisplayMode(.inline)
+        .navigationBarHidden(true)
         .onAppear {
             if musicOn { store.audioManager.setEnabled(true) }
         }
         .onDisappear {
             store.audioManager.stop()
         }
-        .onChange(of: sleepMinutes) { _, newValue in
-            store.audioManager.setSleepTimer(minutes: newValue)
+        .onChange(of: musicOn) { _, newValue in
+            store.audioManager.setEnabled(newValue)
         }
     }
+    
+    // MARK: - Top Bar
+    private var topBar: some View {
+        HStack(spacing: 16) {
+            // Home Button
+            Button(action: { dismiss() }) {
+                Image(systemName: "house.fill")
+                    .font(ProfessionalTheme.Typography.buttonFont)
+                    .foregroundColor(ProfessionalTheme.Colors.textPrimary)
+            }
+            .accessibilityLabel("Zurück zur Bibliothek")
+            
+            // Progress Bar
+            GeometryReader { geometry in
+                ZStack(alignment: .leading) {
+                    // Background
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(ProfessionalTheme.Colors.cozyOrange.opacity(0.3))
+                    
+                    // Progress
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(ProfessionalTheme.Gradients.progressBar)
+                        .frame(width: geometry.size.width * CGFloat(progressPercentage))
+                }
+            }
+            .frame(height: 12)
+            .accessibilityLabel("Fortschritt: Seite \(currentPage + 1) von \(story.totalPages)")
+            
+            // Music Button
+            Button(action: { musicOn.toggle() }) {
+                Image(systemName: musicOn ? "speaker.wave.2.fill" : "speaker.slash.fill")
+                    .font(ProfessionalTheme.Typography.buttonFont)
+                    .foregroundColor(ProfessionalTheme.Colors.textPrimary)
+            }
+            .accessibilityLabel(musicOn ? "Musik aus" : "Musik an")
+            
+            // Menu Button
+            Button(action: { showMenu.toggle() }) {
+                Image(systemName: "ellipsis")
+                    .font(ProfessionalTheme.Typography.buttonFont)
+                    .foregroundColor(ProfessionalTheme.Colors.textPrimary)
+            }
+            .accessibilityLabel("Menü")
+        }
+        .frame(height: ProfessionalTheme.Layout.topBarHeight)
+    }
+    
+    // MARK: - Illustration Area
+    private var illustrationArea: some View {
+        GeometryReader { geometry in
+            ZStack {
+                // Illustration Background
+                let theme = SceneIllustrationTheme.forScene(currentPage)
+                theme.gradient
+                    .ignoresSafeArea()
+                
+                // Illustration Content
+                VStack {
+                    // Page Counter (Top Left)
+                    HStack {
+                        Text("\(currentPage + 1)/\(story.totalPages)")
+                            .font(ProfessionalTheme.Typography.pageNumberFont)
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 8)
+                            .background(
+                                Capsule()
+                                    .fill(Color.black.opacity(0.4))
+                            )
+                            .padding(.leading, 20)
+                            .padding(.top, 8)
+                        
+                        Spacer()
+                    }
+                    
+                    Spacer()
+                    
+                    // Illustration Placeholder
+                    illustrationPlaceholder(theme: theme)
+                    
+                    Spacer()
+                }
+            }
+        }
+        .transition(pageTransition.transition)
+        .animation(.easeInOut(duration: 0.4), value: currentPage)
+    }
+    
+    // MARK: - Illustration Placeholder
+    private func illustrationPlaceholder(theme: SceneIllustrationTheme) -> some View {
+        VStack(spacing: 20) {
+            // Scene Icon
+            Image(systemName: theme.iconName)
+                .font(.system(size: 80, weight: .light))
+                .foregroundColor(.white.opacity(0.9))
+            
+            // Scene Number
+            Text("Szene \(currentScene.index)")
+                .font(ProfessionalTheme.Typography.captionFont)
+                .foregroundColor(.white.opacity(0.8))
+            
+            // Illustration Prompt Preview (for development)
+            if !currentScene.imagePrompt.isEmpty {
+                Text(currentScene.imagePrompt.prefix(60) + "...")
+                    .font(.caption2)
+                    .foregroundColor(.white.opacity(0.6))
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 40)
+                    .lineLimit(2)
+            }
+        }
+        .padding(40)
+    }
+    
+    // MARK: - Navigation Arrows
+    private var navigationArrows: some View {
+        GeometryReader { geometry in
+            HStack {
+                // Previous Button
+                if canGoPrevious {
+                    Button(action: goToPreviousPage) {
+                        Image(systemName: "chevron.left")
+                            .font(.system(size: 24, weight: .semibold))
+                    }
+                    .navButtonStyle()
+                    .padding(.leading, 16)
+                    .accessibilityLabel("Vorherige Seite")
+                } else {
+                    Spacer()
+                        .frame(width: ProfessionalTheme.Layout.navButtonSize + 16)
+                }
+                
+                Spacer()
+                
+                // Next Button
+                if canGoNext {
+                    Button(action: goToNextPage) {
+                        Image(systemName: "chevron.right")
+                            .font(.system(size: 24, weight: .semibold))
+                    }
+                    .navButtonStyle()
+                    .padding(.trailing, 16)
+                    .accessibilityLabel("Nächste Seite")
+                } else {
+                    Spacer()
+                        .frame(width: ProfessionalTheme.Layout.navButtonSize + 16)
+                }
+            }
+            .frame(height: geometry.size.height * ProfessionalTheme.Layout.illustrationRatio)
+        }
+    }
+    
+    // MARK: - Text Card
+    private var textCard: some View {
+        VStack(spacing: 0) {
+            // Drag Handle
+            RoundedRectangle(cornerRadius: 2.5)
+                .fill(ProfessionalTheme.Colors.textSecondary.opacity(0.3))
+                .frame(width: 40, height: 5)
+                .padding(.top, 12)
+                .padding(.bottom, 8)
+            
+            // Story Text
+            ScrollView {
+                Text(currentScene.text)
+                    .font(ProfessionalTheme.Typography.storyTextFont)
+                    .foregroundColor(ProfessionalTheme.Colors.textPrimary)
+                    .lineSpacing(8)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 32)
+                    .padding(.vertical, 16)
+                    .frame(maxWidth: .infinity, alignment: .center)
+            }
+            
+            // Bottom Indicator Dots
+            pageIndicatorDots
+                .padding(.bottom, 24)
+        }
+        .frame(maxWidth: .infinity)
+        .frame(height: UIScreen.main.bounds.height * ProfessionalTheme.Layout.textCardRatio)
+        .storyCardStyle()
+        .transition(.move(edge: .bottom))
+    }
+    
+    // MARK: - Page Indicator Dots
+    private var pageIndicatorDots: some View {
+        HStack(spacing: 8) {
+            ForEach(0..<min(story.totalPages, 20), id: \.self) { index in
+                Circle()
+                    .fill(index == currentPage ? 
+                          ProfessionalTheme.Colors.accent : 
+                          ProfessionalTheme.Colors.cozyOrange.opacity(0.4))
+                    .frame(width: index == currentPage ? 10 : 6, 
+                           height: index == currentPage ? 10 : 6)
+                    .animation(.easeInOut(duration: 0.2), value: currentPage)
+            }
+        }
+    }
+    
+    // MARK: - Navigation Actions
+    private func goToNextPage() {
+        guard canGoNext && !isAnimating else { return }
+        isAnimating = true
+        pageTransition = .next
+        
+        withAnimation(.easeInOut(duration: 0.4)) {
+            currentPage += 1
+        }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+            isAnimating = false
+            pageTransition = .none
+        }
+    }
+    
+    private func goToPreviousPage() {
+        guard canGoPrevious && !isAnimating else { return }
+        isAnimating = true
+        pageTransition = .previous
+        
+        withAnimation(.easeInOut(duration: 0.4)) {
+            currentPage -= 1
+        }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+            isAnimating = false
+            pageTransition = .none
+        }
+    }
+}
 
-    private var scene: StoryScene {
-        story.scenes[sceneIndex]
+// MARK: - Page Transition
+enum PageTransition {
+    case none
+    case next
+    case previous
+    
+    var transition: AnyTransition {
+        switch self {
+        case .none:
+            return .identity
+        case .next:
+            return .asymmetric(
+                insertion: .move(edge: .trailing).combined(with: .opacity),
+                removal: .move(edge: .leading).combined(with: .opacity)
+            )
+        case .previous:
+            return .asymmetric(
+                insertion: .move(edge: .leading).combined(with: .opacity),
+                removal: .move(edge: .trailing).combined(with: .opacity)
+            )
+        }
+    }
+}
+
+// MARK: - Preview
+#Preview {
+    let sampleStory = Story(
+        title: "Die Traumkatze Klara",
+        language: .de,
+        genre: .bedtime,
+        setting: "Kinderzimmer und Traumwelt",
+        moral: "Mut und Freundschaft überwinden alle Ängste",
+        children: [ChildProfile(name: "Emma", gender: .female)],
+        scenes: [
+            StoryScene(
+                index: 1,
+                text: "Als die Nacht näher rückte und die Sterne am Himmel erschienen, schlich eine kleine, silberne Katze durch das offene Fenster von Emmas Zimmer.",
+                imagePrompt: "Eine kleine silberne Katze mit leuchtenden Augen schleicht durch ein offenes Fenster in ein gemütliches Kinderzimmer bei Mondlicht",
+                bgmMood: "peaceful",
+                illustrationTheme: "bedroom"
+            ),
+            StoryScene(
+                index: 2,
+                text: "Die Katze hieß Klara und sie war keine gewöhnliche Katze. Sie war eine Traumkatze, die jeden Abend zu Kindern kam, die ihre Hilfe brauchten.",
+                imagePrompt: "Nahaufnahme der silbernen Traumkatze Klara mit magisch leuchtenden Augen",
+                bgmMood: "magical",
+                illustrationTheme: "magic"
+            ),
+            StoryScene(
+                index: 3,
+                text: "Emma lag wach im Bett und seufzte. Sie hatte Angst vor der Dunkelheit und konnte einfach nicht einschlafen.",
+                imagePrompt: "Ein kleines Mädchen namens Emma liegt in einem gemütlichen Bett",
+                bgmMood: "melancholic",
+                illustrationTheme: "bedroom"
+            )
+        ]
+    )
+    
+    NavigationStack {
+        ReaderView(story: sampleStory)
+            .environmentObject(AppStore())
     }
 }
