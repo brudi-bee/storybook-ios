@@ -126,19 +126,30 @@ class BaseAvatarService {
     }
     
     private func buildClothingDescription(_ color: Color) -> String {
-        let uiColor = UIColor(color)
-        var hue: CGFloat = 0
-        uiColor.getHue(&hue, saturation: nil, brightness: nil, alpha: nil)
-        
+        // Extract color name from SwiftUI Color using description
         let colorName: String
-        switch hue {
-        case 0..<0.08: colorName = "red"
-        case 0.08..<0.17: colorName = "orange"
-        case 0.17..<0.33: colorName = "yellow"
-        case 0.33..<0.45: colorName = "green"
-        case 0.45..<0.65: colorName = "blue"
-        case 0.65..<0.85: colorName = "purple"
-        default: colorName = "colorful"
+        let colorDesc = String(describing: color)
+        
+        if colorDesc.contains("red") {
+            colorName = "red"
+        } else if colorDesc.contains("orange") {
+            colorName = "orange"
+        } else if colorDesc.contains("yellow") {
+            colorName = "yellow"
+        } else if colorDesc.contains("green") {
+            colorName = "green"
+        } else if colorDesc.contains("blue") {
+            colorName = "blue"
+        } else if colorDesc.contains("purple") || colorDesc.contains("pink") {
+            colorName = "purple"
+        } else if colorDesc.contains("brown") {
+            colorName = "brown"
+        } else if colorDesc.contains("black") {
+            colorName = "black"
+        } else if colorDesc.contains("white") || colorDesc.contains("gray") {
+            colorName = "gray"
+        } else {
+            colorName = "colorful"
         }
         
         return "Wearing comfortable \(colorName) children's clothing"
@@ -352,11 +363,11 @@ class DALLEAvatarService: BaseAvatarService, AvatarGenerationService {
         self.urlSession = urlSession
     }
     
-    convenience init?() {
+    static func createWithEnvironmentKey() -> DALLEAvatarService? {
         guard let apiKey = ProcessInfo.processInfo.environment["OPENAI_API_KEY"] else {
             return nil
         }
-        self.init(apiKey: apiKey)
+        return DALLEAvatarService(apiKey: apiKey)
     }
     
     func isAvailable() -> Bool {
@@ -480,7 +491,7 @@ class DALLEAvatarService: BaseAvatarService, AvatarGenerationService {
 enum AvatarServiceFactory {
     static func createService(useRealGeneration: Bool) -> AvatarGenerationService {
         if useRealGeneration {
-            if let dalleService = DALLEAvatarService() {
+            if let dalleService = DALLEAvatarService.createWithEnvironmentKey() {
                 return dalleService
             }
             print("Warning: DALL-E service not available, falling back to mock")
