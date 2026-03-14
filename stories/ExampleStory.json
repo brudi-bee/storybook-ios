@@ -1,0 +1,258 @@
+{
+  "id": "die-traumkatze-klara",
+  "title": "Die Traumkatze Klara",
+  "language": "de",
+  "genre": "bedtime",
+  "setting": "Kinderzimmer und Traumwelt",
+  "moral": "Mut und Freundschaft überwinden alle Ängste",
+  "children": [
+    {
+      "id": "child-1",
+      "name": "Emma",
+      "gender": "female"
+    }
+  ],
+  "scenes": [
+    {
+      "id": "scene-1",
+      "index": 1,
+      "text": "Als die Nacht näher rückte und die Sterne am Himmel erschienen, schlich eine kleine, silberne Katze durch das offene Fenster von Emmas Zimmer.",
+      "imagePrompt": "Eine kleine silberne Katze mit leuchtenden Augen schleicht durch ein offenes Fenster in ein gemütliches Kinderzimmer bei Mondlicht, warme Farben, sanfte Schatten",
+      "bgmMood": "peaceful",
+      "illustrationTheme": "bedroom"
+    },
+    {
+      "id": "scene-2",
+      "index": 2,
+      "text": "Die Katze hieß Klara und sie war keine gewöhnliche Katze. Sie war eine Traumkatze, die jeden Abend zu Kindern kam, die ihre Hilfe brauchten.",
+      "imagePrompt": "Nahaufnahme der silbernen Traumkatze Klara mit magisch leuchtenden Augen und einem sanften Lächeln, umgeben von kleinen funkelnden Sternen",
+      "bgmMood": "magical",
+      "illustrationTheme": "magic"
+    },
+    {
+      "id": "scene-3",
+      "index": 3,
+      "text": "Emma lag wach im Bett und seufzte. Sie hatte Angst vor der Dunkelheit und konnte einfach nicht einschlafen.",
+      "imagePrompt": "Ein kleines Mädchen namens Emma liegt in einem gemütlichen Bett mit bunten Kissen, schaut besorgt zum Fenster, warmes Nachtlicht",
+      "bgmMood": "melancholic",
+      "illustrationTheme": "bedroom"
+    },
+    {
+      "id": "scene-4",
+      "index": 4,
+      "text": "\"Hallo, Emma\", flüsterte Klara sanft. \"Ich bin hier, um dir zu helfen. Möchtest du mit mir auf eine Reise durch die Traumwelt gehen?\"",
+      "imagePrompt": "Die Traumkatze Klara sitzt sanft auf Emmas Bett und spricht mit ihr, magisches goldenes Licht umgibt sie, vertrauensvolle Szene",
+      "bgmMood": "hopeful",
+      "illustrationTheme": "cozy"
+    },
+    {
+      "id": "scene-5",
+      "index": 5,
+      "text": "Emma nickte neugierig. Sie streichelte Klaras weiches, silbernes Fell und spürte sofort, wie eine wohlige Wärme sie durchströmte.",
+      "imagePrompt": "Emma streichelt die silberne Katze sanft, goldenes Licht fließt zwischen ihnen, beide sehen glücklich aus, warme Farben",
+      "bgmMood": "warm",
+      "illustrationTheme": "cozy"
+    },
+    {
+      "id": "scene-6",
+      "index": 6,
+      "text": "Plötzlich begann das Zimmer zu schimmern. Die Wände verschwanden und wurden zu einem wunderschönen Nachthimmel voller funkelnder Sterne.",
+      "imagePrompt": "Das Kinderzimmer verwandelt sich magisch in einen endlosen Sternenhimmel, Wände lösen sich auf, überall funkelnde Sterne und Galaxien",
+      "bgmMood": "magical",
+      "illustrationTheme": "stars"
+    },
+    {
+      "id": "scene-7",
+      "index": 7,
+      "text": "\"Wir sind in der Traumwelt angekommen!\" sagte Klara stolz. \"Hier kann alles passieren, was du dir vorstellen kannst.\"",
+      "imagePrompt": "Emma und Klara schweben sanft in einer Traumwelt aus Wolken und Sternen, beide sehen staunend aus, Regenbogenfarben im Hintergrund",
+      "bgmMood": "wonder",
+      "illustrationTheme": "dreamSky"
+    },
+    {
+      "id": "scene-8",
+      "index": 8,
+      "text": "Sie beschützte die Träume aller Kinder und sorgte dafür, dass keine bösen Albträume sie heimsuchen konnten.",
+      "imagePrompt": "Die Traumkatze Klara steht wachsam auf einer Wolke, umgeben von einem schützenden goldenen Lichtschirm, böse Schatten werden abgewehrt",
+      "bgmMood": "protective",
+      "illustrationTheme": "cloud"
+    },
+    {
+      "id": "scene-9",
+      "index": 9,
+      "text": "Aber an diesem Abend war etwas anders. Ein kleiner Stern hatte Angst, weil er zu glänzen aufhörte.",
+      "imagePrompt": "Ein kleiner, traurig aussehender Stern auf einer Wolke, sein Licht ist schwach und flackert, Emma und Klara nähern sich besorgt",
+      "bgmMood": "sad",
+      "illustrationTheme": "stars"
+    },
+    {
+      "id": "scene-10",
+      "index": 10,
+      "text": "\"Ich verliere mein Licht\", flüsterte der Stern. \"Wenn ich ganz erlösche, kann ich keine Kinderträume mehr erhellen.\"",
+      "imagePrompt": "Der kleine Stern ist fast transparent vor Sorge, Tränen aus Sternenstaub rollen herunter, dunkle Wolken nähern sich",
+      "bgmMood": "worried",
+      "illustrationTheme": "night"
+    },
+    {
+      "id": "scene-11",
+      "index": 11,
+      "text": "Emma wollte dem Stern helfen. Sie dachte an all die glücklichen Momente, die sie erlebt hatte, und sammelte diese Erinnerungen in ihrem Herzen.",
+      "imagePrompt": "Emma hält ihre Hände über ihr Herz, kleine glühende Erinnerungsbilder schweben heraus – Familie, Spielen, Lachen, warme Farben",
+      "bgmMood": "hopeful",
+      "illustrationTheme": "magic"
+    },
+    {
+      "id": "scene-12",
+      "index": 12,
+      "text": "\"Glaube an dich\", sagte Klara sanft. \"Deine guten Gedanken sind stärker als jede Dunkelheit.\"",
+      "imagePrompt": "Klara legt ihre Pfote sanft auf Emmas Herz, goldenes Licht strömt in Emma, Vertrauen und Hoffnung in ihren Augen",
+      "bgmMood": "inspiring",
+      "illustrationTheme": "cozy"
+    },
+    {
+      "id": "scene-13",
+      "index": 13,
+      "text": "Emma schloss die Augen und dachte an den schönsten Tag ihres Lebens – als sie zum ersten Mal ihre kleine Schwester gesehen hatte.",
+      "imagePrompt": "Eine leuchtende Erinnerungsszene: Emma hält zum ersten Mal ihr kleines Schwesterchen im Arm, beide lächeln, warmes goldenes Licht",
+      "bgmMood": "tender",
+      "illustrationTheme": "sunrise"
+    },
+    {
+      "id": "scene-14",
+      "index": 14,
+      "text": "Aus ihrer Brust stieg ein warmes, goldenes Licht auf. Es war so hell und schön, dass selbst die dunkelsten Ecken der Traumwelt erstrahlten.",
+      "imagePrompt": "Emma strahlt goldenes Licht aus ihrer Brust, die Dunkelheit weicht zurück, alles wird warm und hell, magische Atmosphäre",
+      "bgmMood": "triumphant",
+      "illustrationTheme": "magic"
+    },
+    {
+      "id": "scene-15",
+      "index": 15,
+      "text": "Der kleine Stern fing das Licht ein und begann wieder zu glühen. Er wurde immer heller und heller, bis er der schönste Stern am Himmel war.",
+      "imagePrompt": "Der kleine Stern absorbiert das goldene Licht und beginnt hell zu leuchten, er wird größer und strahlender, Freude in der Luft",
+      "bgmMood": "joyful",
+      "illustrationTheme": "stars"
+    },
+    {
+      "id": "scene-16",
+      "index": 16,
+      "text": "\"Danke, Emma!\" rief der Stern glücklich. \"Du hast mir gezeigt, dass Licht immer in uns ist, auch wenn wir es manchmal vergessen.\"",
+      "imagePrompt": "Der nun strahlende Stern tanzt freudig um Emma und Klara herum, Lichtstrahlen überall, alle lächeln und feiern",
+      "bgmMood": "celebration",
+      "illustrationTheme": "stars"
+    },
+    {
+      "id": "scene-17",
+      "index": 17,
+      "text": "Plötzlich hörten sie ein leises Schluchzen. Hinter einem Mondhügel saß ein kleiner Traumwolke, die sich verloren fühlte.",
+      "imagePrompt": "Eine kleine, traurige Wolke hinter einem silbernen Mondhügel, sie sieht verloren aus, weinende Regentropfen um sie herum",
+      "bgmMood": "sad",
+      "illustrationTheme": "moon"
+    },
+    {
+      "id": "scene-18",
+      "index": 18,
+      "text": "\"Ich bin von meiner Wolkenfamilie weggeweht worden\", schluchzte die kleine Wolke. \"Ich finde den Weg zurück nicht.\"",
+      "imagePrompt": "Die kleine Wolke erzählt ihre traurige Geschichte, Wind weht um sie herum, sie hält sich an einem Stern fest",
+      "bgmMood": "sympathetic",
+      "illustrationTheme": "cloud"
+    },
+    {
+      "id": "scene-19",
+      "index": 19,
+      "text": "Klara schnurrte beruhigend. \"Keine Sorge, kleine Wolke. Wir helfen dir. Emma, kannst du dir vorstellen, wie ein Weg aus Sternen aussieht?\"",
+      "imagePrompt": "Klara schnurrt sanft, Emma denkt nach und schaut nachdenklich in den Himmel, erste Sterne beginnen zu leuchten",
+      "bgmMood": "hopeful",
+      "illustrationTheme": "stars"
+    },
+    {
+      "id": "scene-20",
+      "index": 20,
+      "text": "Emma nickte und malte mit ihren Gedanken einen funkelnden Sternenpfad durch den Nachthimmel. Er war so hell, dass man ihn kilometerweit sehen konnte.",
+      "imagePrompt": "Ein magischer Pfad aus leuchtenden Sternen erscheint im Himmel, er windet sich elegant durch die Wolken, funkelnd und einladend",
+      "bgmMood": "magical",
+      "illustrationTheme": "dreamSky"
+    },
+    {
+      "id": "scene-21",
+      "index": 21,
+      "text": "Die kleine Wolke strahlte vor Freude. Sie folgte dem Sternenpfad und fand bald ihre Familie wieder, die voller Sorge auf sie gewartet hatte.",
+      "imagePrompt": "Die kleine Wolke folgt dem Sternenpfad und findet ihre Wolkenfamilie, alle umarmen sich freudig, herzliche Szene",
+      "bgmMood": "happy",
+      "illustrationTheme": "cloud"
+    },
+    {
+      "id": "scene-22",
+      "index": 22,
+      "text": "Als Dankeschön schenkte die Wolkenfamilie Emma einen sanften Regen aus Träumen – jeden Tropfen gefüllt mit den schönsten Wünschen.",
+      "imagePrompt": "Sanfter Traumregen fällt auf Emma herab, jeder Tropfen enthält ein glitzerndes Wunschbild, magische Atmosphäre",
+      "bgmMood": "grateful",
+      "illustrationTheme": "cloud"
+    },
+    {
+      "id": "scene-23",
+      "index": 23,
+      "text": "Emma fühlte sich so glücklich wie noch nie. Sie hatte nicht nur dem Stern geholfen, sondern auch der Wolke – und dabei ihre eigene Angst überwunden.",
+      "imagePrompt": "Emma steht selbstbewusst in der Traumwelt, umgeben von Sternen und Wolken, sie strahlt Selbstvertrauen aus, stolze Haltung",
+      "bgmMood": "proud",
+      "illustrationTheme": "dreamSky"
+    },
+    {
+      "id": "scene-24",
+      "index": 24,
+      "text": "\"Siehst du?\" sagte Klara liebevoll. \"Du bist mutiger, als du denkst. Die Dunkelheit ist nicht mehr so dunkel, oder?\"",
+      "imagePrompt": "Klara und Emma schauen gemeinsam in den nun freundlichen Nachthimmel, die Sterne sind hell und einladend, keine Angst mehr",
+      "bgmMood": "peaceful",
+      "illustrationTheme": "night"
+    },
+    {
+      "id": "scene-25",
+      "index": 25,
+      "text": "Emma lächelte. \"Die Dunkelheit ist gar nicht böse. Sie ist nur der Hintergrund, damit die Sterne so schön leuchten können.\"",
+      "imagePrompt": "Emma lächelt weise, sie versteht nun die Harmonie von Licht und Dunkelheit, Yin-Yang-ähnliche Darstellung, Balance",
+      "bgmMood": "wise",
+      "illustrationTheme": "moon"
+    },
+    {
+      "id": "scene-26",
+      "index": 26,
+      "text": "Klara nickte zufrieden. \"Genau. Und jetzt ist es Zeit, nach Hause zu gehen. Aber vergiss nie: Ich bin immer da, wenn du mich brauchst.\"",
+      "imagePrompt": "Klara und Emma umarmen sich zum Abschied, goldene Verbindungsfäden umgeben sie, emotionale aber warme Szene",
+      "bgmMood": "bittersweet",
+      "illustrationTheme": "cozy"
+    },
+    {
+      "id": "scene-27",
+      "index": 27,
+      "text": "Die Traumwelt begann sanft zu verblassen. Emma spürte, wie sie wieder in ihr warmes Bett zurückgezogen wurde.",
+      "imagePrompt": "Emma schwebt sanft zurück in ihr Zimmer, die Traumwelt löst sich in sanftes Licht auf, Übergangsszene",
+      "bgmMood": "gentle",
+      "illustrationTheme": "bedroom"
+    },
+    {
+      "id": "scene-28",
+      "index": 28,
+      "text": "Klara sprang leise auf das Fensterbrett und drehte sich noch einmal um. \"Schlaf gut, mutige Emma. Bis morgen Nacht.\"",
+      "imagePrompt": "Klara sitzt auf dem Fensterbrett und winkt Emma zum Abschied zu, Mondlicht fällt auf sie, herzliche Geste",
+      "bgmMood": "tender",
+      "illustrationTheme": "bedroom"
+    },
+    {
+      "id": "scene-29",
+      "index": 29,
+      "text": "Mit einem letzten Schnurren verschwand die Traumkatze in den silbernen Mondstrahlen. Emma gähnte glücklich.",
+      "imagePrompt": "Klara löst sich in silberne Mondstrahlen auf, Emma gähnt zufrieden im Bett, alles ist friedvoll und ruhig",
+      "bgmMood": "sleepy",
+      "illustrationTheme": "moon"
+    },
+    {
+      "id": "scene-30",
+      "index": 30,
+      "text": "Und als Emma einschlief, träumte sie von einer silbernen Katze, die auf einer Wolke aus Sternen saß und über alle Kinder der Welt wachte. Die End.",
+      "imagePrompt": "Emma schläft friedlich ein, über ihr träumt eine Szene von Klara auf einer Sternenwolke, die über schlafende Kinder wacht, perfekter Kreis",
+      "bgmMood": "peaceful",
+      "illustrationTheme": "dreamSky"
+    }
+  ],
+  "createdAt": "2026-03-14T20:00:00Z"
+}
