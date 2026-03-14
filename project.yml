@@ -6,7 +6,6 @@ options:
 settings:
   base:
     SWIFT_VERSION: 5.9
-packages: []
 targets:
   Storybook:
     type: application
