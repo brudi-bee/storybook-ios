@@ -95,6 +95,8 @@ struct HomeView: View {
                 )
             }
             .padding(.top, 8)
+            .accessibilityLabel("Neue Geschichte erstellen")
+            .accessibilityHint("Tippe um eine neue Geschichte zu generieren")
         }
         .padding()
         .background(
@@ -119,6 +121,7 @@ struct HomeView: View {
                 }
                 .font(.subheadline)
                 .foregroundStyle(.purple)
+                .accessibilityLabel("Alle empfohlenen Geschichten anzeigen")
             }
             .padding(.horizontal)
             
@@ -133,6 +136,9 @@ struct HomeView: View {
                                 // Load story
                                 loadFeaturedStory(story)
                             }
+                            .accessibilityLabel("\(story.title), \(story.subtitle)")
+                            .accessibilityHint("Tippe um die Geschichte zu lesen")
+                            .accessibilityAddTraits(.isButton)
                     }
                 }
                 .padding(.horizontal)
@@ -185,6 +191,9 @@ struct HomeView: View {
                                 selectionFeedback.selectionChanged()
                                 selectedStory = story
                             }
+                            .accessibilityLabel("\(story.title), Genre: \(story.genre.displayName)")
+                            .accessibilityHint("Tippe um die Geschichte zu lesen")
+                            .accessibilityAddTraits(.isButton)
                     }
                 }
                 .padding(.horizontal)
@@ -210,6 +219,8 @@ struct HomeView: View {
                     }
                     .frame(maxWidth: .infinity, alignment: .center)
                     .padding(.top, 8)
+                    .accessibilityLabel("Alle Geschichten in der Bibliothek anzeigen")
+                    .accessibilityHint("Zeigt die vollständige Bibliothek mit \(store.stories.count) Geschichten")
                 }
             }
         }
@@ -332,6 +343,7 @@ struct FeaturedStoryCard: View {
             .frame(width: 260, alignment: .leading)
         }
         .storyCardStyle()
+        .accessibilityElement(children: .combine)
     }
 }
 
@@ -366,6 +378,7 @@ struct CompactStoryCard: View {
             .padding(.bottom, 8)
         }
         .storyCardStyle()
+        .accessibilityElement(children: .combine)
     }
     
     private func genreColor(for genre: StoryGenre) -> Color {
