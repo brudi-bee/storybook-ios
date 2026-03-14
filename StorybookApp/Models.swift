@@ -64,6 +64,7 @@ struct StoryScene: Identifiable, Codable {
     var text: String
     var imagePrompt: String
     var bgmMood: String
+    var illustrationTheme: String? // Theme identifier for consistent scene styling
 }
 
 struct Story: Identifiable, Codable {
@@ -76,4 +77,39 @@ struct Story: Identifiable, Codable {
     var children: [ChildProfile]
     var scenes: [StoryScene]
     var createdAt = Date()
+    
+    // MARK: - Computed Properties
+    var totalPages: Int {
+        scenes.count
+    }
+    
+    // MARK: - Reading Progress
+    struct ReadingProgress: Codable {
+        var storyId: UUID
+        var currentPage: Int
+        var lastReadAt: Date
+        var isCompleted: Bool
+        
+        static func `default`(for storyId: UUID) -> ReadingProgress {
+            ReadingProgress(
+                storyId: storyId,
+                currentPage: 0,
+                lastReadAt: Date(),
+                isCompleted: false
+            )
+        }
+    }
+}
+
+// MARK: - Story Extension for Illustration
+extension Story {
+    func illustrationPrompt(for sceneIndex: Int) -> String {
+        guard sceneIndex >= 0 && sceneIndex < scenes.count else { return "" }
+        return scenes[sceneIndex].imagePrompt
+    }
+    
+    func progressPercentage(for currentPage: Int) -> Double {
+        guard totalPages > 0 else { return 0 }
+        return Double(currentPage + 1) / Double(totalPages)
+    }
 }
