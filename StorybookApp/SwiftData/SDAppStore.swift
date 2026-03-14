@@ -367,7 +367,7 @@ final class SDAppStore: ObservableObject {
             
         } catch let error as APIError {
             lastGenerationError = error.localizedDescription
-            print("Story generation failed: \(error.localizedDescription ?? error.localizedDescription)")
+            print("Story generation failed: \(error.localizedDescription)")
         } catch {
             lastGenerationError = error.localizedDescription
             print("Story generation failed: \(error)")

@@ -140,7 +140,7 @@ struct AddChildButton: View {
             HStack {
                 Image(systemName: "plus.circle.fill")
                     .font(.title2)
-                    .foregroundStyle(.accent)
+                    .foregroundStyle(Color.accentColor)
                 
                 Text("Kind hinzufügen")
                     .font(.headline)

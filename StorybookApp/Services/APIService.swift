@@ -50,10 +50,22 @@ struct GeneratedStory: Codable {
 
 // MARK: - Retry Configuration
 struct RetryConfig {
-    let maxRetries: Int = 3
-    let baseDelay: TimeInterval = 1.0
-    let maxDelay: TimeInterval = 30.0
-    let backoffMultiplier: Double = 2.0
+    let maxRetries: Int
+    let baseDelay: TimeInterval
+    let maxDelay: TimeInterval
+    let backoffMultiplier: Double
+
+    init(
+        maxRetries: Int = 3,
+        baseDelay: TimeInterval = 1.0,
+        maxDelay: TimeInterval = 30.0,
+        backoffMultiplier: Double = 2.0
+    ) {
+        self.maxRetries = maxRetries
+        self.baseDelay = baseDelay
+        self.maxDelay = maxDelay
+        self.backoffMultiplier = backoffMultiplier
+    }
     
     /// Berechnet den Delay für einen Retry-Versuch mit Exponential Backoff + Jitter
     func delay(forAttempt attempt: Int) -> TimeInterval {

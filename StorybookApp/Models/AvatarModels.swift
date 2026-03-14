@@ -1,6 +1,7 @@
 import Foundation
 import SwiftUI
 import SwiftData
+import UIKit
 
 // MARK: - Avatar Style Enum
 enum AvatarStyle: String, CaseIterable, Codable, Identifiable {
