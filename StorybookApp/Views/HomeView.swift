@@ -7,6 +7,7 @@ struct HomeView: View {
     @State private var showingStoryDetail = false
     @State private var showingLibrary = false
     @State private var isRefreshing = false
+    @State private var showNeedsChildAlert = false
     
     // Haptic feedback generators
     private let selectionFeedback = UISelectionFeedbackGenerator()
@@ -36,6 +37,11 @@ struct HomeView: View {
             }
             .navigationDestination(isPresented: $showingLibrary) {
                 LibraryView()
+            }
+            .alert("Bitte erst ein Kinderprofil anlegen", isPresented: $showNeedsChildAlert) {
+                Button("OK", role: .cancel) { }
+            } message: {
+                Text("Lege zuerst im Tab ‚Kinder‘ mindestens ein Profil an. Danach sind Geschichten personalisiert mit Name und Geschlecht.")
             }
         }
     }
@@ -67,6 +73,17 @@ struct HomeView: View {
             Text(store.children.first.map { "Für \($0.name)" } ?? "Für deine Kleinen")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
+
+            if store.children.isEmpty {
+                Label("Bitte zuerst ein Kind im Tab ‚Kinder‘ anlegen", systemImage: "person.badge.plus")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(.orange)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 8)
+                    .background(
+                        Capsule().fill(Color.orange.opacity(0.12))
+                    )
+            }
             
             Text("Jede Woche neu kuratierte Geschichte")
                 .font(.footnote.weight(.semibold))
@@ -209,32 +226,72 @@ struct HomeView: View {
     }
     
     private func loadFeaturedStory(_ featured: FeaturedStory) {
-        // Convert featured to DTO and open
-        let scenes = [
-            StoryScene(index: 1, text: "Es war einmal...", imagePrompt: "fantasy forest", bgmMood: "calm"),
-            StoryScene(index: 2, text: "Und sie lebten glücklich bis ans Ende ihrer Tage.", imagePrompt: "happy ending", bgmMood: "peaceful")
-        ]
-        
-        let storyDTO = StoryDTO(
-            title: featured.title,
-            language: .de,
-            genre: featured.genre,
-            setting: featured.subtitle,
-            moral: "Freundschaft und Mut",
-            children: [],
-            scenes: scenes
-        )
-        
+        guard let child = store.children.first else {
+            showNeedsChildAlert = true
+            return
+        }
+
+        let scenes = buildAdventureStoryScenes(for: child)
+
         // Create a temporary SwiftData Story for the sheet binding
         let story = Story(
-            title: featured.title,
+            title: "\(child.name) und die Karte der 7 Monde",
             language: .de,
-            genre: featured.genre,
-            setting: featured.subtitle,
-            moral: "Freundschaft und Mut",
+            genre: .adventure,
+            setting: "Tal der Sternenbrücken",
+            moral: "Mut wächst, wenn man anderen hilft.",
             scenes: scenes
         )
         selectedStory = story
+    }
+
+    private func buildAdventureStoryScenes(for child: ChildProfile) -> [StoryScene] {
+        let name = child.name.isEmpty ? "Kiki" : child.name
+        let pronoun = child.gender == .female ? "sie" : child.gender == .male ? "er" : "sie"
+        let possessive = child.gender == .female ? "ihre" : child.gender == .male ? "seine" : "die"
+
+        let lines = [
+            "Als der Abendwind über das Dorf zog, fand \(name) eine leuchtende Karte unter \(possessive) Kissen.",
+            "Auf der Karte glitzerten sieben Monde. Ein kleiner Pfeil zeigte Richtung Sternenwald.",
+            "\(name) zog den Mantel an und schlich leise zur alten Brücke am Fluss.",
+            "Dort wartete ein sprechender Rucksack. \"Nur Mutige hören mich\", flüsterte er.",
+            "Gemeinsam folgten sie den silbernen Wegzeichen zwischen den Bäumen.",
+            "Hinter der ersten Lichtung stand ein Tor aus Nebel und Mondstaub.",
+            "\(name) atmete tief ein. Dann machte \(pronoun) den ersten Schritt hindurch.",
+            "Auf der anderen Seite lag das Tal der Sternenbrücken, hell wie ein Traum.",
+            "Eine Eule mit bronzenen Federn landete vor ihnen. \"Die Monde sind aus dem Takt\", sagte sie.",
+            "Um das Tal zu retten, musste \(name) drei verlorene Schlüssel finden.",
+            "Der erste Schlüssel lag im Flüstergras, das nur auf freundliche Worte hörte.",
+            "\(name) kniete sich hin und sagte: \"Bitte, wir brauchen deine Hilfe.\"",
+            "Sofort teilte sich das Gras, und ein goldener Schlüssel blinkte im Tau.",
+            "Der zweite Schlüssel war im Echo-Berg versteckt, hinter einem Rätsel aus Tönen.",
+            "\(name) summte die Melodie nach, die die Eule vorgesungen hatte.",
+            "Der Berg antwortete mit warmem Klang und gab den silbernen Schlüssel frei.",
+            "Für den dritten Schlüssel mussten sie durch den Regen aus Sternenfunken.",
+            "Der Rucksack spannte einen Schirm aus Licht, und \(name) lief mutig voran.",
+            "Mitten im Regen stand ein kleiner Fuchs, der den Weg nicht fand.",
+            "\(name) hielt an und nahm den Fuchs an die Hand. \"Wir gehen zusammen\", sagte \(pronoun).",
+            "Da öffnete sich unter ihren Füßen ein Kreis aus Blauglas.",
+            "Der dritte Schlüssel stieg langsam empor, als hätte das Tal gelächelt.",
+            "Jetzt fehlte nur noch das Sternenuhrwerk im Zentrum der Brücken.",
+            "Die Zahnräder waren still. Kein Mond bewegte sich am Himmel.",
+            "\(name) steckte nacheinander alle drei Schlüssel ein.",
+            "Ein leiser Klick. Dann summte das Uhrwerk wie eine ruhige Melodie.",
+            "Die sieben Monde begannen wieder zu wandern und warfen Licht auf das Tal.",
+            "Die Eule verneigte sich. \"Du hast mit Mut und Herz geführt\", sagte sie.",
+            "\(name) bekam einen kleinen Mondstein als Erinnerung für schwierige Tage.",
+            "Zurück im Dorf legte \(name) den Stein ans Fenster und schlief mit einem Lächeln ein."
+        ]
+
+        return lines.enumerated().map { idx, text in
+            StoryScene(
+                index: idx + 1,
+                text: text,
+                imagePrompt: "children's book adventure scene \(idx + 1), hero \(name), star valley, warm light",
+                bgmMood: idx < 10 ? "adventure" : (idx < 22 ? "calm" : "peaceful"),
+                illustrationTheme: "adventure"
+            )
+        }
     }
     
     private func convertToDTO(_ story: Story) -> StoryDTO {
