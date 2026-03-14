@@ -313,7 +313,7 @@ class MockAvatarService: BaseAvatarService, AvatarGenerationService {
             case "adventure":
                 colors = [UIColor.green.cgColor, UIColor.brown.cgColor]
             default:
-                colors = [UIColor.purple.cgColor, UIColor.pink.cgColor]
+                colors = [UIColor.systemPurple.cgColor, UIColor.systemPink.cgColor]
             }
             
             let gradient = CGGradient(colorsSpace: CGColorSpaceCreateDeviceRGB(),
