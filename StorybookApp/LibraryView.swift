@@ -237,17 +237,6 @@ struct BookCoverCard: View {
     }
 }
 
-// MARK: - Press Gesture Helper
-extension View {
-    func onPressingChanged(_ action: @escaping (Bool) -> Void) -> some View {
-        self.gesture(
-            DragGesture(minimumDistance: 0)
-                .onChanged { _ in action(true) }
-                .onEnded { _ in action(false) }
-        )
-    }
-}
-
 #Preview {
     LibraryView()
         .environmentObject(SDAppStore())
