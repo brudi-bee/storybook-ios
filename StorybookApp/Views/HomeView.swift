@@ -24,8 +24,7 @@ struct HomeView: View {
                     VStack(spacing: 0) {
                         // Hero Section
                         HeroSection(
-                            childName: store.children.first?.name,
-                            hasChildren: !store.children.isEmpty,
+                            childNames: store.children.map { $0.name }.filter { !$0.isEmpty },
                             onNeedsChild: { showNeedsChildAlert = true }
                         )
                         .padding(.top, 20)
@@ -141,8 +140,7 @@ struct MeshGradientBackground: View {
 
 // MARK: - Hero Section
 struct HeroSection: View {
-    let childName: String?
-    let hasChildren: Bool
+    let childNames: [String]
     let onNeedsChild: () -> Void
     
     @State private var isAnimating = false
@@ -194,12 +192,16 @@ struct HeroSection: View {
                     .foregroundColor(DesignTokens.Colors.textPrimary)
                     .multilineTextAlignment(.center)
                 
-                if let name = childName {
-                    Text("Für \(name)")
+                if childNames.count >= 2 {
+                    Text("Für \(childNames[0]) und \(childNames[1])")
+                        .font(DesignTokens.Typography.headlineMedium)
+                        .foregroundColor(DesignTokens.Colors.primary)
+                } else if let first = childNames.first {
+                    Text("Für \(first)")
                         .font(DesignTokens.Typography.headlineMedium)
                         .foregroundColor(DesignTokens.Colors.primary)
                 } else {
-                    Text("Für kleine Abenteurer")
+                    Text("Bitte erst Kind anlegen")
                         .font(DesignTokens.Typography.headlineMedium)
                         .foregroundColor(DesignTokens.Colors.textSecondary)
                 }
