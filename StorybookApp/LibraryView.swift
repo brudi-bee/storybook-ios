@@ -3,48 +3,50 @@ import SwiftUI
 struct LibraryView: View {
     @EnvironmentObject var store: SDAppStore
     @State private var selectedStory: Story?
-    @State private var isAnimating = false
+    @State private var showingReader = false
     
+    // 2 columns for iPhone, 3 for iPad
     let columns = [
-        GridItem(.adaptive(minimum: 140, maximum: 160), spacing: 20)
+        GridItem(.flexible(), spacing: 16),
+        GridItem(.flexible(), spacing: 16)
     ]
     
     var body: some View {
         NavigationStack {
             ZStack {
-                // Background
-                DesignTokens.Colors.warmBackground
+                // Dark background like reference
+                Color(red: 0.15, green: 0.18, blue: 0.35)
                     .ignoresSafeArea()
                 
                 ScrollView(showsIndicators: false) {
-                    VStack(spacing: 24) {
+                    VStack(spacing: 0) {
                         // Header
-                        VStack(spacing: 8) {
+                        HStack {
                             Text("Meine Bibliothek")
-                                .font(DesignTokens.Typography.displaySmall)
-                                .foregroundColor(DesignTokens.Colors.textPrimary)
+                                .font(.system(size: 28, weight: .bold, design: .rounded))
+                                .foregroundColor(.white)
+                            
+                            Spacer()
                             
                             Text("\(store.stories.count) Geschichten")
-                                .font(DesignTokens.Typography.bodyMedium)
-                                .foregroundColor(DesignTokens.Colors.textSecondary)
+                                .font(.system(size: 15, weight: .medium))
+                                .foregroundColor(.white.opacity(0.7))
                         }
-                        .padding(.top, 20)
+                        .padding(.horizontal, 20)
+                        .padding(.top, 60)
+                        .padding(.bottom, 24)
                         
                         if store.stories.isEmpty {
                             EmptyLibraryView()
                         } else {
-                            // Bookshelf Grid
-                            LazyVGrid(columns: columns, spacing: 30) {
-                                ForEach(Array(store.stories.enumerated()), id: \.element.id) { index, story in
-                                    BookView(
-                                        story: story,
-                                        index: index,
-                                        onTap: {
-                                            withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
-                                                selectedStory = story
-                                            }
+                            // Books Grid
+                            LazyVGrid(columns: columns, spacing: 20) {
+                                ForEach(store.stories) { story in
+                                    BookCoverCard(story: story)
+                                        .onTapGesture {
+                                            selectedStory = story
+                                            showingReader = true
                                         }
-                                    )
                                 }
                             }
                             .padding(.horizontal, 20)
@@ -55,10 +57,24 @@ struct LibraryView: View {
             }
             .navigationTitle("")
             .navigationBarHidden(true)
-            .sheet(item: $selectedStory) { story in
-                BookOpenAnimationView(story: story)
+            .fullScreenCover(item: $selectedStory) { story in
+                ReaderView(story: convertToDTO(story))
             }
         }
+    }
+    
+    private func convertToDTO(_ story: Story) -> StoryDTO {
+        StoryDTO(
+            id: story.id,
+            title: story.title,
+            language: story.language,
+            genre: story.genre,
+            setting: story.setting,
+            moral: story.moral,
+            children: [],
+            scenes: story.scenes,
+            createdAt: story.createdAt
+        )
     }
 }
 
@@ -68,15 +84,15 @@ struct EmptyLibraryView: View {
         VStack(spacing: 20) {
             Image(systemName: "books.vertical")
                 .font(.system(size: 80))
-                .foregroundColor(DesignTokens.Colors.textTertiary)
+                .foregroundColor(.white.opacity(0.3))
             
-            Text("Noch keine Bücher")
-                .font(DesignTokens.Typography.headlineMedium)
-                .foregroundColor(DesignTokens.Colors.textSecondary)
+            Text("Noch keine Geschichten")
+                .font(.system(size: 20, weight: .semibold))
+                .foregroundColor(.white)
             
-            Text("Erstelle ein Kinderprofil und öffne eine Geschichte, um deine Sammlung zu starten.")
-                .font(DesignTokens.Typography.bodyMedium)
-                .foregroundColor(DesignTokens.Colors.textTertiary)
+            Text("Erstelle ein Kinderprofil und öffne eine Geschichte.")
+                .font(.system(size: 15))
+                .foregroundColor(.white.opacity(0.6))
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 40)
         }
@@ -85,331 +101,133 @@ struct EmptyLibraryView: View {
     }
 }
 
-// MARK: - Book View (3D Book on Shelf)
-struct BookView: View {
+// MARK: - Book Cover Card
+struct BookCoverCard: View {
     let story: Story
-    let index: Int
-    let onTap: () -> Void
-    
     @State private var isPressed = false
-    @State private var isHovered = false
-    
-    private var bookColors: (spine: Color, cover: Color, pages: Color) {
-        switch story.genre {
-        case .adventure:
-            return (Color.orange.opacity(0.9), Color.orange, Color.white)
-        case .friendship:
-            return (Color.green.opacity(0.9), Color.green, Color.white)
-        case .fantasy:
-            return (Color.purple.opacity(0.9), Color.purple, Color.white)
-        case .animals:
-            return (Color.brown.opacity(0.9), Color.brown, Color.white)
-        case .bedtime:
-            return (Color.blue.opacity(0.9), Color.blue, Color.white)
-        }
-    }
     
     var body: some View {
         VStack(spacing: 0) {
-            // 3D Book
-            ZStack {
-                // Book spine (left edge)
-                RoundedRectangle(cornerRadius: 4)
-                    .fill(bookColors.spine)
-                    .frame(width: 24, height: 160)
-                    .offset(x: -58)
+            // Cover Image Area
+            ZStack(alignment: .bottom) {
+                // Background gradient based on genre
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(coverGradient)
+                    .frame(height: 200)
                 
-                // Book cover
-                RoundedRectangle(cornerRadius: 4)
-                    .fill(
-                        LinearGradient(
-                            colors: [bookColors.cover, bookColors.cover.opacity(0.8)],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    )
-                    .frame(width: 120, height: 160)
-                    .shadow(
-                        color: Color.black.opacity(isPressed ? 0.3 : 0.2),
-                        radius: isPressed ? 8 : 6,
-                        x: isPressed ? 4 : 2,
-                        y: isPressed ? 8 : 4
-                    )
-                
-                // Cover content
-                VStack(spacing: 8) {
-                    // Icon
-                    Image(systemName: iconForGenre(story.genre))
-                        .font(.system(size: 32))
-                        .foregroundColor(.white.opacity(0.9))
+                // Illustration placeholder (would be actual image)
+                VStack {
+                    Spacer()
                     
-                    // Title
+                    // Character/Scene illustration
+                    ZStack {
+                        // Background shapes for depth
+                        Circle()
+                            .fill(.white.opacity(0.1))
+                            .frame(width: 120, height: 120)
+                            .offset(y: -20)
+                        
+                        // Main illustration icon
+                        Image(systemName: coverIcon)
+                            .font(.system(size: 70))
+                            .foregroundStyle(.white)
+                            .shadow(radius: 4)
+                    }
+                    
+                    Spacer()
+                }
+                
+                // Title overlay at bottom
+                VStack(spacing: 4) {
                     Text(story.title)
-                        .font(.system(size: 11, weight: .bold, design: .rounded))
+                        .font(.system(size: 16, weight: .bold, design: .rounded))
                         .foregroundColor(.white)
                         .multilineTextAlignment(.center)
-                        .lineLimit(3)
-                        .rotationEffect(.degrees(-2))
-                        .padding(.horizontal, 8)
-                }
-                .frame(width: 100, height: 140)
-                
-                // Pages edge (right side)
-                RoundedRectangle(cornerRadius: 2)
-                    .fill(bookColors.pages)
-                    .frame(width: 8, height: 156)
-                    .offset(x: 56)
-                    .overlay(
-                        // Page lines
-                        VStack(spacing: 2) {
-                            ForEach(0..<20) { _ in
-                                Rectangle()
-                                    .fill(Color.gray.opacity(0.3))
-                                    .frame(height: 0.5)
-                            }
-                        }
-                        .frame(height: 150)
-                    )
-            }
-            .rotation3DEffect(
-                .degrees(isPressed ? -15 : (isHovered ? -5 : 0)),
-                axis: (x: 0, y: 1, z: 0),
-                anchor: .leading
-            )
-            .offset(x: isPressed ? -10 : 0)
-            .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isPressed)
-            .animation(.spring(response: 0.4, dampingFraction: 0.8), value: isHovered)
-            
-            // Book title below
-            Text(story.title)
-                .font(DesignTokens.Typography.caption.weight(.medium))
-                .foregroundColor(DesignTokens.Colors.textPrimary)
-                .lineLimit(1)
-                .frame(width: 140)
-                .padding(.top, 12)
-        }
-        .onTapGesture {
-            isPressed = true
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
-                isPressed = false
-                onTap()
-            }
-        }
-        .onHover { hovering in
-            isHovered = hovering
-        }
-    }
-    
-    private func iconForGenre(_ genre: StoryGenre) -> String {
-        switch genre {
-        case .adventure: return "map.fill"
-        case .friendship: return "heart.fill"
-        case .fantasy: return "sparkles"
-        case .animals: return "pawprint.fill"
-        case .bedtime: return "moon.fill"
-        }
-    }
-}
-
-// MARK: - Book Open Animation View
-struct BookOpenAnimationView: View {
-    let story: Story
-    @Environment(\.dismiss) private var dismiss
-    
-    @State private var openAmount: CGFloat = 0
-    @State private var showContent = false
-    
-    var body: some View {
-        NavigationStack {
-            ZStack {
-                // Background
-                DesignTokens.Colors.warmBackground
-                    .ignoresSafeArea()
-                
-                VStack(spacing: 0) {
-                    // Animated Book Opening
-                    GeometryReader { geo in
-                        ZStack {
-                            // Left page
-                            BookPage(
-                                story: story,
-                                isLeft: true,
-                                openAmount: openAmount
-                            )
-                            .frame(width: geo.size.width * 0.45, height: geo.size.height * 0.7)
-                            .offset(x: -geo.size.width * 0.22 * openAmount)
-                            
-                            // Right page
-                            BookPage(
-                                story: story,
-                                isLeft: false,
-                                openAmount: openAmount
-                            )
-                            .frame(width: geo.size.width * 0.45, height: geo.size.height * 0.7)
-                            .offset(x: geo.size.width * 0.22 * openAmount)
-                            
-                            // Spine
-                            Rectangle()
-                                .fill(Color.brown.opacity(0.8))
-                                .frame(width: 8, height: geo.size.height * 0.7)
-                                .shadow(radius: 2)
-                        }
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    }
-                    .frame(height: 400)
+                        .lineLimit(2)
+                        .shadow(radius: 2)
                     
-                    if showContent {
-                        // Story info
-                        VStack(spacing: 16) {
-                            Text(story.title)
-                                .font(DesignTokens.Typography.headlineLarge)
-                                .foregroundColor(DesignTokens.Colors.textPrimary)
-                            
-                            Text(story.setting)
-                                .font(DesignTokens.Typography.bodyLarge)
-                                .foregroundColor(DesignTokens.Colors.textSecondary)
-                            
-                            Text("\(story.scenes.count) Seiten")
-                                .font(DesignTokens.Typography.caption)
-                                .foregroundColor(DesignTokens.Colors.textTertiary)
-                            
-                            // Read button
-                            Button {
-                                dismiss()
-                                // Navigate to reader
-                            } label: {
-                                HStack(spacing: 8) {
-                                    Image(systemName: "book.open.fill")
-                                    Text("Lesen")
-                                }
-                                .font(DesignTokens.Typography.headlineSmall)
-                                .foregroundColor(.white)
-                                .padding(.horizontal, 40)
-                                .padding(.vertical, 16)
-                                .background(
-                                    Capsule()
-                                        .fill(DesignTokens.Colors.primary)
-                                        .shadow(color: DesignTokens.Colors.primary.opacity(0.4), radius: 12, x: 0, y: 6)
-                                )
-                            }
-                            .buttonStyle(.plain)
-                            .padding(.top, 20)
-                        }
-                        .padding()
-                        .transition(.move(edge: .bottom).combined(with: .opacity))
-                    }
+                    Text(story.genre.displayName)
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundColor(.white.opacity(0.9))
                 }
-            }
-            .navigationTitle("")
-            .navigationBarHidden(true)
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button("Schließen") {
-                        dismiss()
-                    }
-                    .foregroundColor(DesignTokens.Colors.textSecondary)
-                }
-            }
-        }
-        .onAppear {
-            // Animate book opening
-            withAnimation(.easeInOut(duration: 0.8)) {
-                openAmount = 1
-            }
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
-                withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) {
-                    showContent = true
-                }
-            }
-        }
-    }
-}
-
-// MARK: - Book Page
-struct BookPage: View {
-    let story: Story
-    let isLeft: Bool
-    let openAmount: CGFloat
-    
-    var body: some View {
-        ZStack {
-            // Page background
-            RoundedRectangle(cornerRadius: 4)
-                .fill(Color.white)
-                .shadow(
-                    color: Color.black.opacity(0.15),
-                    radius: 4,
-                    x: isLeft ? -2 : 2,
-                    y: 2
+                .padding(.horizontal, 12)
+                .padding(.vertical, 16)
+                .frame(maxWidth: .infinity)
+                .background(
+                    LinearGradient(
+                        colors: [.black.opacity(0.6), .black.opacity(0.3), .clear],
+                        startPoint: .bottom,
+                        endPoint: .top
+                    )
                 )
-            
-            // Page content
-            VStack {
-                if isLeft {
-                    // Left page - Title and info
-                    VStack(spacing: 20) {
-                        Image(systemName: iconForGenre(story.genre))
-                            .font(.system(size: 48))
-                            .foregroundColor(colorForGenre(story.genre))
-                        
-                        Text(story.title)
-                            .font(.system(size: 20, weight: .bold, design: .serif))
-                            .foregroundColor(DesignTokens.Colors.textPrimary)
-                            .multilineTextAlignment(.center)
-                            .padding(.horizontal, 20)
-                        
-                        Text(story.moral)
-                            .font(.system(size: 14, weight: .medium, design: .serif))
-                            .foregroundColor(DesignTokens.Colors.textSecondary)
-                            .italic()
-                            .multilineTextAlignment(.center)
-                            .padding(.horizontal, 20)
-                    }
-                    .padding(.vertical, 40)
-                } else {
-                    // Right page - Preview
-                    VStack(spacing: 16) {
-                        Text("Vorschau")
-                            .font(.system(size: 14, weight: .semibold))
-                            .foregroundColor(DesignTokens.Colors.textTertiary)
-                        
-                        Text(story.scenes.first?.text ?? "")
-                            .font(.system(size: 16, design: .serif))
-                            .foregroundColor(DesignTokens.Colors.textPrimary)
-                            .lineLimit(6)
-                            .multilineTextAlignment(.leading)
-                            .padding(.horizontal, 20)
-                        
-                        Spacer()
-                        
-                        Text("...")
-                            .font(.title2)
-                            .foregroundColor(DesignTokens.Colors.textTertiary)
-                    }
-                    .padding(.vertical, 30)
-                }
             }
+            .clipShape(RoundedRectangle(cornerRadius: 12))
             
-            // Page lines effect
-            VStack(spacing: 20) {
-                ForEach(0..<12) { _ in
-                    Rectangle()
-                        .fill(Color.gray.opacity(0.05))
-                        .frame(height: 1)
-                }
-            }
-            .padding(.vertical, 40)
-            .padding(.horizontal, 20)
+            // Book spine effect (bottom edge)
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color.white.opacity(0.3))
+                .frame(height: 4)
+                .padding(.top, 2)
         }
-        .rotation3DEffect(
-            .degrees(isLeft ? -5 * (1 - openAmount) : 5 * (1 - openAmount)),
-            axis: (x: 0, y: 1, z: 0),
-            anchor: isLeft ? .trailing : .leading
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color.white.opacity(0.1))
         )
+        .overlay(
+            // Subtle border
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(Color.white.opacity(0.2), lineWidth: 1)
+        )
+        .shadow(
+            color: .black.opacity(isPressed ? 0.4 : 0.25),
+            radius: isPressed ? 12 : 8,
+            x: 0,
+            y: isPressed ? 8 : 4
+        )
+        .scaleEffect(isPressed ? 0.96 : 1.0)
+        .animation(.spring(response: 0.2, dampingFraction: 0.7), value: isPressed)
+        .onPressingChanged { pressing in
+            isPressed = pressing
+        }
     }
     
-    private func iconForGenre(_ genre: StoryGenre) -> String {
-        switch genre {
+    private var coverGradient: LinearGradient {
+        switch story.genre {
+        case .adventure:
+            return LinearGradient(
+                colors: [Color.orange, Color.red.opacity(0.8)],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+        case .friendship:
+            return LinearGradient(
+                colors: [Color.green, Color.teal.opacity(0.8)],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+        case .fantasy:
+            return LinearGradient(
+                colors: [Color.purple, Color.pink.opacity(0.8)],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+        case .animals:
+            return LinearGradient(
+                colors: [Color.brown, Color.orange.opacity(0.8)],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+        case .bedtime:
+            return LinearGradient(
+                colors: [Color.blue, Color.indigo.opacity(0.8)],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+        }
+    }
+    
+    private var coverIcon: String {
+        switch story.genre {
         case .adventure: return "map.fill"
         case .friendship: return "heart.fill"
         case .fantasy: return "sparkles"
@@ -417,15 +235,16 @@ struct BookPage: View {
         case .bedtime: return "moon.fill"
         }
     }
-    
-    private func colorForGenre(_ genre: StoryGenre) -> Color {
-        switch genre {
-        case .adventure: return .orange
-        case .friendship: return .green
-        case .fantasy: return .purple
-        case .animals: return .brown
-        case .bedtime: return .blue
-        }
+}
+
+// MARK: - Press Gesture Helper
+extension View {
+    func onPressingChanged(_ action: @escaping (Bool) -> Void) -> some View {
+        self.gesture(
+            DragGesture(minimumDistance: 0)
+                .onChanged { _ in action(true) }
+                .onEnded { _ in action(false) }
+        )
     }
 }
 
