@@ -58,17 +58,8 @@ struct LibraryView: View {
             }
             .navigationTitle("")
             .navigationBarHidden(true)
-            .fullScreenCover(isPresented: $showBookOpenAnimation) {
-                if let story = selectedStory {
-                    BookOpenAnimationView(story: story) {
-                        // After animation, show reader
-                        showBookOpenAnimation = false
-                        // Small delay then show reader
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                            // Navigate to reader
-                        }
-                    }
-                }
+            .fullScreenCover(item: $selectedStory) { story in
+                ReaderView(story: convertToDTO(story))
             }
         }
     }
@@ -432,6 +423,21 @@ struct BookPageView: View {
         case .animals: return .brown
         case .bedtime: return .blue
         }
+    }
+}
+
+    private func convertToDTO(_ story: Story) -> StoryDTO {
+        StoryDTO(
+            id: story.id,
+            title: story.title,
+            language: story.language,
+            genre: story.genre,
+            setting: story.setting,
+            moral: story.moral,
+            children: [],
+            scenes: story.scenes,
+            createdAt: story.createdAt
+        )
     }
 }
 

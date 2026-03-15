@@ -14,12 +14,14 @@ struct ReaderView: View {
     @State private var isAnimating = false
     
     // MARK: - Computed Properties
-    private var currentScene: StoryScene {
-        story.scenes[min(currentPage, story.scenes.count - 1)]
+    private var currentScene: StoryScene? {
+        guard !story.scenes.isEmpty else { return nil }
+        return story.scenes[min(currentPage, story.scenes.count - 1)]
     }
     
     private var progressPercentage: Double {
-        story.progressPercentage(for: currentPage)
+        guard !story.scenes.isEmpty else { return 0 }
+        return story.progressPercentage(for: currentPage)
     }
     
     private var canGoNext: Bool {
@@ -37,7 +39,23 @@ struct ReaderView: View {
             ProfessionalTheme.Gradients.warmBackground
                 .ignoresSafeArea()
             
-            VStack(spacing: 0) {
+            if story.scenes.isEmpty {
+                // Empty state
+                VStack(spacing: 20) {
+                    Image(systemName: "exclamationmark.triangle")
+                        .font(.system(size: 60))
+                        .foregroundColor(.orange)
+                    
+                    Text("Keine Seiten vorhanden")
+                        .font(.title2)
+                        .foregroundColor(.primary)
+                    
+                    Button("Zurück") {
+                        dismiss()
+                    }
+                    .buttonStyle(.borderedProminent)
+                }
+            } else {
                 // Top Navigation Bar
                 topBar
                     .padding(.horizontal, 20)
@@ -55,6 +73,7 @@ struct ReaderView: View {
                 
                 // Text Card (30%)
                 textCard
+            }
             }
         }
         .navigationBarHidden(true)
@@ -165,18 +184,20 @@ struct ReaderView: View {
                 .foregroundColor(.white.opacity(0.9))
             
             // Scene Number
-            Text("Szene \(currentScene.index)")
-                .font(ProfessionalTheme.Typography.captionFont)
-                .foregroundColor(.white.opacity(0.8))
-            
-            // Illustration Prompt Preview (for development)
-            if !currentScene.imagePrompt.isEmpty {
-                Text(currentScene.imagePrompt.prefix(60) + "...")
-                    .font(.caption2)
-                    .foregroundColor(.white.opacity(0.6))
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal, 40)
-                    .lineLimit(2)
+            if let scene = currentScene {
+                Text("Szene \(scene.index)")
+                    .font(ProfessionalTheme.Typography.captionFont)
+                    .foregroundColor(.white.opacity(0.8))
+                
+                // Illustration Prompt Preview (for development)
+                if !scene.imagePrompt.isEmpty {
+                    Text(scene.imagePrompt.prefix(60) + "...")
+                        .font(.caption2)
+                        .foregroundColor(.white.opacity(0.6))
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 40)
+                        .lineLimit(2)
+                }
             }
         }
         .padding(40)
@@ -232,14 +253,16 @@ struct ReaderView: View {
             
             // Story Text
             ScrollView {
-                Text(currentScene.text)
-                    .font(ProfessionalTheme.Typography.storyTextFont)
-                    .foregroundColor(ProfessionalTheme.Colors.textPrimary)
-                    .lineSpacing(8)
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal, 32)
-                    .padding(.vertical, 16)
-                    .frame(maxWidth: .infinity, alignment: .center)
+                if let scene = currentScene {
+                    Text(scene.text)
+                        .font(ProfessionalTheme.Typography.storyTextFont)
+                        .foregroundColor(ProfessionalTheme.Colors.textPrimary)
+                        .lineSpacing(8)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 32)
+                        .padding(.vertical, 16)
+                        .frame(maxWidth: .infinity, alignment: .center)
+                }
             }
             
             // Bottom Indicator Dots
