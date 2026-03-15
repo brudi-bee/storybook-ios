@@ -3,9 +3,8 @@ import SwiftUI
 struct LibraryView: View {
     @EnvironmentObject var store: SDAppStore
     @State private var selectedStory: Story?
-    @State private var showingReader = false
+    @State private var showBookOpenAnimation = false
     
-    // 2 columns for iPhone, 3 for iPad
     let columns = [
         GridItem(.flexible(), spacing: 16),
         GridItem(.flexible(), spacing: 16)
@@ -14,8 +13,8 @@ struct LibraryView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                // Dark background like reference
-                Color(red: 0.15, green: 0.18, blue: 0.35)
+                // Dark background
+                Color(red: 0.12, green: 0.14, blue: 0.28)
                     .ignoresSafeArea()
                 
                 ScrollView(showsIndicators: false) {
@@ -42,11 +41,13 @@ struct LibraryView: View {
                             // Books Grid
                             LazyVGrid(columns: columns, spacing: 20) {
                                 ForEach(store.stories) { story in
-                                    BookCoverCard(story: story)
-                                        .onTapGesture {
+                                    BookCoverWithOpenAnimation(
+                                        story: story,
+                                        onOpen: {
                                             selectedStory = story
-                                            showingReader = true
+                                            showBookOpenAnimation = true
                                         }
+                                    )
                                 }
                             }
                             .padding(.horizontal, 20)
@@ -57,24 +58,19 @@ struct LibraryView: View {
             }
             .navigationTitle("")
             .navigationBarHidden(true)
-            .fullScreenCover(item: $selectedStory) { story in
-                ReaderView(story: convertToDTO(story))
+            .fullScreenCover(isPresented: $showBookOpenAnimation) {
+                if let story = selectedStory {
+                    BookOpenAnimationView(story: story) {
+                        // After animation, show reader
+                        showBookOpenAnimation = false
+                        // Small delay then show reader
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                            // Navigate to reader
+                        }
+                    }
+                }
             }
         }
-    }
-    
-    private func convertToDTO(_ story: Story) -> StoryDTO {
-        StoryDTO(
-            id: story.id,
-            title: story.title,
-            language: story.language,
-            genre: story.genre,
-            setting: story.setting,
-            moral: story.moral,
-            children: [],
-            scenes: story.scenes,
-            createdAt: story.createdAt
-        )
     }
 }
 
@@ -101,43 +97,54 @@ struct EmptyLibraryView: View {
     }
 }
 
-// MARK: - Book Cover Card
-struct BookCoverCard: View {
+// MARK: - Book Cover with Open Animation
+struct BookCoverWithOpenAnimation: View {
     let story: Story
+    let onOpen: () -> Void
+    
     @State private var isPressed = false
     
     var body: some View {
+        BookCoverCard(story: story, isPressed: isPressed)
+            .onTapGesture {
+                withAnimation(.spring(response: 0.2, dampingFraction: 0.7)) {
+                    isPressed = true
+                }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    isPressed = false
+                    onOpen()
+                }
+            }
+    }
+}
+
+// MARK: - Book Cover Card
+struct BookCoverCard: View {
+    let story: Story
+    let isPressed: Bool
+    
+    var body: some View {
         VStack(spacing: 0) {
-            // Cover Image Area
+            // Cover
             ZStack(alignment: .bottom) {
-                // Background gradient based on genre
+                // Background
                 RoundedRectangle(cornerRadius: 12)
                     .fill(coverGradient)
                     .frame(height: 200)
                 
-                // Illustration placeholder (would be actual image)
+                // Illustration
                 VStack {
                     Spacer()
                     
-                    // Character/Scene illustration
-                    ZStack {
-                        // Background shapes for depth
-                        Circle()
-                            .fill(.white.opacity(0.1))
-                            .frame(width: 120, height: 120)
-                            .offset(y: -20)
-                        
-                        // Main illustration icon
-                        Image(systemName: coverIcon)
-                            .font(.system(size: 70))
-                            .foregroundStyle(.white)
-                            .shadow(radius: 4)
-                    }
+                    Image(systemName: coverIcon)
+                        .font(.system(size: 70))
+                        .foregroundStyle(.white)
+                        .shadow(radius: 4)
                     
                     Spacer()
                 }
                 
-                // Title overlay at bottom
+                // Title overlay
                 VStack(spacing: 4) {
                     Text(story.title)
                         .font(.system(size: 16, weight: .bold, design: .rounded))
@@ -155,7 +162,7 @@ struct BookCoverCard: View {
                 .frame(maxWidth: .infinity)
                 .background(
                     LinearGradient(
-                        colors: [.black.opacity(0.6), .black.opacity(0.3), .clear],
+                        colors: [.black.opacity(0.7), .black.opacity(0.3), .clear],
                         startPoint: .bottom,
                         endPoint: .top
                     )
@@ -163,9 +170,9 @@ struct BookCoverCard: View {
             }
             .clipShape(RoundedRectangle(cornerRadius: 12))
             
-            // Book spine effect (bottom edge)
+            // Spine
             RoundedRectangle(cornerRadius: 12)
-                .fill(Color.white.opacity(0.3))
+                .fill(Color.white.opacity(0.2))
                 .frame(height: 4)
                 .padding(.top, 2)
         }
@@ -174,55 +181,31 @@ struct BookCoverCard: View {
                 .fill(Color.white.opacity(0.1))
         )
         .overlay(
-            // Subtle border
             RoundedRectangle(cornerRadius: 12)
                 .stroke(Color.white.opacity(0.2), lineWidth: 1)
         )
         .shadow(
-            color: .black.opacity(isPressed ? 0.4 : 0.25),
-            radius: isPressed ? 12 : 8,
+            color: .black.opacity(isPressed ? 0.5 : 0.3),
+            radius: isPressed ? 16 : 10,
             x: 0,
-            y: isPressed ? 8 : 4
+            y: isPressed ? 12 : 6
         )
-        .scaleEffect(isPressed ? 0.96 : 1.0)
+        .scaleEffect(isPressed ? 0.94 : 1.0)
         .animation(.spring(response: 0.2, dampingFraction: 0.7), value: isPressed)
-        .onPressingChanged { pressing in
-            isPressed = pressing
-        }
     }
     
     private var coverGradient: LinearGradient {
         switch story.genre {
         case .adventure:
-            return LinearGradient(
-                colors: [Color.orange, Color.red.opacity(0.8)],
-                startPoint: .top,
-                endPoint: .bottom
-            )
+            return LinearGradient(colors: [.orange, .red.opacity(0.8)], startPoint: .top, endPoint: .bottom)
         case .friendship:
-            return LinearGradient(
-                colors: [Color.green, Color.teal.opacity(0.8)],
-                startPoint: .top,
-                endPoint: .bottom
-            )
+            return LinearGradient(colors: [.green, .teal.opacity(0.8)], startPoint: .top, endPoint: .bottom)
         case .fantasy:
-            return LinearGradient(
-                colors: [Color.purple, Color.pink.opacity(0.8)],
-                startPoint: .top,
-                endPoint: .bottom
-            )
+            return LinearGradient(colors: [.purple, .pink.opacity(0.8)], startPoint: .top, endPoint: .bottom)
         case .animals:
-            return LinearGradient(
-                colors: [Color.brown, Color.orange.opacity(0.8)],
-                startPoint: .top,
-                endPoint: .bottom
-            )
+            return LinearGradient(colors: [.brown, .orange.opacity(0.8)], startPoint: .top, endPoint: .bottom)
         case .bedtime:
-            return LinearGradient(
-                colors: [Color.blue, Color.indigo.opacity(0.8)],
-                startPoint: .top,
-                endPoint: .bottom
-            )
+            return LinearGradient(colors: [.blue, .indigo.opacity(0.8)], startPoint: .top, endPoint: .bottom)
         }
     }
     
@@ -233,6 +216,221 @@ struct BookCoverCard: View {
         case .fantasy: return "sparkles"
         case .animals: return "pawprint.fill"
         case .bedtime: return "moon.fill"
+        }
+    }
+}
+
+// MARK: - Book Open Animation View
+struct BookOpenAnimationView: View {
+    let story: Story
+    let onComplete: () -> Void
+    
+    @State private var coverOpenAmount: CGFloat = 0
+    @State private var showPages = false
+    @State private var pageFlipAmount: CGFloat = 0
+    
+    var body: some View {
+        ZStack {
+            // Dark background
+            Color.black.opacity(0.9)
+                .ignoresSafeArea()
+            
+            VStack(spacing: 40) {
+                Spacer()
+                
+                // Book opening animation
+                ZStack {
+                    // Back cover (left side when open)
+                    BookPageView(story: story, isLeft: true)
+                        .frame(width: 160, height: 220)
+                        .offset(x: -80 * coverOpenAmount)
+                        .opacity(coverOpenAmount)
+                    
+                    // Front cover (starts closed, opens to right)
+                    BookCoverAnimated(story: story, openAmount: coverOpenAmount)
+                        .frame(width: 160, height: 220)
+                        .rotation3DEffect(
+                            .degrees(-180 * coverOpenAmount),
+                            axis: (x: 0, y: 1, z: 0),
+                            anchor: .leading
+                        )
+                    
+                    // First page (flips in)
+                    if showPages {
+                        BookPageView(story: story, isLeft: false)
+                            .frame(width: 160, height: 220)
+                            .offset(x: 80)
+                            .rotation3DEffect(
+                                .degrees(-180 * pageFlipAmount),
+                                axis: (x: 0, y: 1, z: 0),
+                                anchor: .leading
+                            )
+                            .opacity(pageFlipAmount < 0.5 ? 0 : 1)
+                    }
+                }
+                
+                Spacer()
+                
+                // Loading text
+                Text("Geschichte wird geöffnet...")
+                    .font(.system(size: 18, weight: .medium))
+                    .foregroundColor(.white.opacity(0.8))
+            }
+        }
+        .onAppear {
+            // Animation sequence
+            withAnimation(.easeInOut(duration: 0.8)) {
+                coverOpenAmount = 1
+            }
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+                showPages = true
+                withAnimation(.easeInOut(duration: 0.6)) {
+                    pageFlipAmount = 1
+                }
+            }
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                onComplete()
+            }
+        }
+    }
+}
+
+// MARK: - Animated Book Cover
+struct BookCoverAnimated: View {
+    let story: Story
+    let openAmount: CGFloat
+    
+    var body: some View {
+        ZStack {
+            // Cover background
+            RoundedRectangle(cornerRadius: 8)
+                .fill(coverGradient)
+            
+            // Cover content
+            VStack {
+                Spacer()
+                Image(systemName: coverIcon)
+                    .font(.system(size: 50))
+                    .foregroundColor(.white)
+                    .opacity(1 - openAmount)
+                Spacer()
+            }
+            
+            // Spine
+            HStack {
+                Rectangle()
+                    .fill(Color.brown.opacity(0.8))
+                    .frame(width: 12)
+                Spacer()
+            }
+        }
+        .overlay(
+            RoundedRectangle(cornerRadius: 8)
+                .stroke(Color.white.opacity(0.3), lineWidth: 2)
+        )
+    }
+    
+    private var coverGradient: LinearGradient {
+        switch story.genre {
+        case .adventure:
+            return LinearGradient(colors: [.orange, .red], startPoint: .top, endPoint: .bottom)
+        case .friendship:
+            return LinearGradient(colors: [.green, .teal], startPoint: .top, endPoint: .bottom)
+        case .fantasy:
+            return LinearGradient(colors: [.purple, .pink], startPoint: .top, endPoint: .bottom)
+        case .animals:
+            return LinearGradient(colors: [.brown, .orange], startPoint: .top, endPoint: .bottom)
+        case .bedtime:
+            return LinearGradient(colors: [.blue, .indigo], startPoint: .top, endPoint: .bottom)
+        }
+    }
+    
+    private var coverIcon: String {
+        switch story.genre {
+        case .adventure: return "map.fill"
+        case .friendship: return "heart.fill"
+        case .fantasy: return "sparkles"
+        case .animals: return "pawprint.fill"
+        case .bedtime: return "moon.fill"
+        }
+    }
+}
+
+// MARK: - Book Page View
+struct BookPageView: View {
+    let story: Story
+    let isLeft: Bool
+    
+    var body: some View {
+        ZStack {
+            // Page background
+            RoundedRectangle(cornerRadius: 4)
+                .fill(Color.white)
+                .shadow(color: .black.opacity(0.2), radius: 4, x: isLeft ? -2 : 2, y: 2)
+            
+            // Page content
+            VStack(spacing: 12) {
+                if isLeft {
+                    // Left page - title
+                    Image(systemName: iconForGenre(story.genre))
+                        .font(.system(size: 40))
+                        .foregroundColor(colorForGenre(story.genre))
+                    
+                    Text(story.title)
+                        .font(.system(size: 16, weight: .bold, design: .serif))
+                        .foregroundColor(.black)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 8)
+                    
+                    Text(story.moral)
+                        .font(.system(size: 12, weight: .medium, design: .serif))
+                        .foregroundColor(.gray)
+                        .italic()
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 8)
+                } else {
+                    // Right page - preview
+                    Text("Kapitel 1")
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundColor(.gray)
+                    
+                    Text(story.scenes.first?.text ?? "")
+                        .font(.system(size: 13, design: .serif))
+                        .foregroundColor(.black)
+                        .lineLimit(8)
+                        .multilineTextAlignment(.leading)
+                        .padding(.horizontal, 12)
+                    
+                    Spacer()
+                    
+                    Text("...")
+                        .font(.title3)
+                        .foregroundColor(.gray)
+                }
+            }
+            .padding(.vertical, 20)
+        }
+    }
+    
+    private func iconForGenre(_ genre: StoryGenre) -> String {
+        switch genre {
+        case .adventure: return "map.fill"
+        case .friendship: return "heart.fill"
+        case .fantasy: return "sparkles"
+        case .animals: return "pawprint.fill"
+        case .bedtime: return "moon.fill"
+        }
+    }
+    
+    private func colorForGenre(_ genre: StoryGenre) -> Color {
+        switch genre {
+        case .adventure: return .orange
+        case .friendship: return .green
+        case .fantasy: return .purple
+        case .animals: return .brown
+        case .bedtime: return .blue
         }
     }
 }
