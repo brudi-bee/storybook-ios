@@ -389,7 +389,3 @@ enum PageTransition {
             .environmentObject(SDAppStore())
     }
 }
-mpleStory)
-            .environmentObject(SDAppStore())
-    }
-}
