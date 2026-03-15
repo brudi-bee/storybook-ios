@@ -105,27 +105,44 @@ struct MeshGradientBackground: View {
     @State private var animate = false
     
     var body: some View {
-        TimelineView(.animation(minimumInterval: 0.1, paused: false)) { _ in
-            MeshGradient(
-                width: 3,
-                height: 3,
-                points: [
-                    .init(x: 0, y: 0), .init(x: 0.5, y: animate ? 0.2 : 0), .init(x: 1, y: 0),
-                    .init(x: animate ? 0.2 : 0, y: 0.5), .init(x: 0.5, y: 0.5), .init(x: animate ? 0.8 : 1, y: 0.5),
-                    .init(x: 0, y: 1), .init(x: 0.5, y: animate ? 0.8 : 1), .init(x: 1, y: 1)
-                ],
-                colors: [
-                    Color(red: 0.95, green: 0.90, blue: 0.98),
-                    Color(red: 0.90, green: 0.85, blue: 0.95),
-                    Color(red: 0.98, green: 0.92, blue: 0.90),
-                    Color(red: 0.88, green: 0.92, blue: 0.98),
-                    Color(red: 0.95, green: 0.93, blue: 0.96),
-                    Color(red: 0.92, green: 0.88, blue: 0.95),
-                    Color(red: 0.90, green: 0.92, blue: 0.96),
-                    Color(red: 0.96, green: 0.90, blue: 0.92),
-                    Color(red: 0.94, green: 0.94, blue: 0.98)
-                ]
-            )
+        Group {
+            if #available(iOS 18.0, *) {
+                // iOS 18+: Use MeshGradient
+                TimelineView(.animation(minimumInterval: 0.1, paused: false)) { _ in
+                    MeshGradient(
+                        width: 3,
+                        height: 3,
+                        points: [
+                            .init(x: 0, y: 0), .init(x: 0.5, y: animate ? 0.2 : 0), .init(x: 1, y: 0),
+                            .init(x: animate ? 0.2 : 0, y: 0.5), .init(x: 0.5, y: 0.5), .init(x: animate ? 0.8 : 1, y: 0.5),
+                            .init(x: 0, y: 1), .init(x: 0.5, y: animate ? 0.8 : 1), .init(x: 1, y: 1)
+                        ],
+                        colors: [
+                            Color(red: 0.95, green: 0.90, blue: 0.98),
+                            Color(red: 0.90, green: 0.85, blue: 0.95),
+                            Color(red: 0.98, green: 0.92, blue: 0.90),
+                            Color(red: 0.88, green: 0.92, blue: 0.98),
+                            Color(red: 0.95, green: 0.93, blue: 0.96),
+                            Color(red: 0.92, green: 0.88, blue: 0.95),
+                            Color(red: 0.90, green: 0.92, blue: 0.96),
+                            Color(red: 0.96, green: 0.90, blue: 0.92),
+                            Color(red: 0.94, green: 0.94, blue: 0.98)
+                        ]
+                    )
+                }
+            } else {
+                // iOS 17: Fallback to LinearGradient
+                LinearGradient(
+                    colors: [
+                        Color(red: 0.95, green: 0.90, blue: 0.98),
+                        Color(red: 0.90, green: 0.85, blue: 0.95),
+                        Color(red: 0.98, green: 0.92, blue: 0.90),
+                        Color(red: 0.88, green: 0.92, blue: 0.98)
+                    ],
+                    startPoint: animate ? .topLeading : .bottomLeading,
+                    endPoint: animate ? .bottomTrailing : .topTrailing
+                )
+            }
         }
         .onAppear {
             withAnimation(.easeInOut(duration: 8).repeatForever(autoreverses: true)) {
