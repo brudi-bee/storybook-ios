@@ -12,6 +12,9 @@ targets:
     platform: iOS
     sources:
       - path: StorybookApp
+      - path: Audio
+        type: folder
+        buildPhase: resources
     info:
       path: StorybookApp/Info.plist
       properties:
