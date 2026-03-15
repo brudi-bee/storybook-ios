@@ -3,6 +3,7 @@ import UIKit
 
 struct HomeView: View {
     @EnvironmentObject var store: SDAppStore
+    var onOpenLibraryTab: () -> Void = {}
     @State private var selectedStory: Story?
     @State private var showingLibrary = false
     @State private var isRefreshing = false
