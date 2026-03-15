@@ -30,23 +30,11 @@ struct HomeView: View {
                         )
                         .padding(.top, 20)
                         
-                        // Featured Stories
-                        FeaturedStoriesSection(
-                            stories: store.featuredStories,
+                        // Neueste Geschichten (Top 3 from library)
+                        LatestStoriesSection(
+                            stories: Array(store.stories.prefix(3)),
                             onStoryTap: { story in
                                 impactFeedback.impactOccurred()
-                                loadFeaturedStory(story)
-                            },
-                            onSeeAll: { showingLibrary = true }
-                        )
-                        .padding(.top, 32)
-                        
-                        // Library Preview
-                        LibraryPreviewSection(
-                            stories: Array(store.stories.prefix(4)),
-                            totalCount: store.stories.count,
-                            onStoryTap: { story in
-                                selectionFeedback.selectionChanged()
                                 selectedStory = story
                             },
                             onSeeAll: { showingLibrary = true }
@@ -257,17 +245,17 @@ struct HeroSection: View {
     }
 }
 
-// MARK: - Featured Stories Section
-struct FeaturedStoriesSection: View {
-    let stories: [FeaturedStory]
-    let onStoryTap: (FeaturedStory) -> Void
+// MARK: - Latest Stories Section
+struct LatestStoriesSection: View {
+    let stories: [Story]
+    let onStoryTap: (Story) -> Void
     let onSeeAll: () -> Void
     
     var body: some View {
         VStack(alignment: .leading, spacing: DesignTokens.Spacing.md) {
             // Header
             HStack {
-                Text("Empfohlen")
+                Text("Neueste Geschichten")
                     .font(DesignTokens.Typography.headlineLarge)
                     .foregroundColor(DesignTokens.Colors.textPrimary)
                 
@@ -286,26 +274,66 @@ struct FeaturedStoriesSection: View {
             }
             .padding(.horizontal, DesignTokens.Spacing.lg)
             
-            // Horizontal Scroll
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: DesignTokens.Spacing.md) {
-                    ForEach(stories) { story in
-                        ModernStoryCard(story: story)
-                            .onTapGesture {
-                                onStoryTap(story)
-                            }
-                    }
+            if stories.isEmpty {
+                // Empty state
+                VStack(spacing: DesignTokens.Spacing.md) {
+                    Image(systemName: "book.closed")
+                        .font(.system(size: 48))
+                        .foregroundColor(DesignTokens.Colors.textTertiary)
+                    
+                    Text("Noch keine Geschichten")
+                        .font(DesignTokens.Typography.bodyLarge)
+                        .foregroundColor(DesignTokens.Colors.textSecondary)
                 }
+                .frame(maxWidth: .infinity, minHeight: 150)
+                .padding()
+                .background(
+                    RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.large)
+                        .fill(Color.white.opacity(0.5))
+                )
                 .padding(.horizontal, DesignTokens.Spacing.lg)
+            } else {
+                // Horizontal Scroll
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: DesignTokens.Spacing.md) {
+                        ForEach(stories) { story in
+                            ModernStoryCardFromLibrary(story: story)
+                                .onTapGesture {
+                                    onStoryTap(story)
+                                }
+                        }
+                    }
+                    .padding(.horizontal, DesignTokens.Spacing.lg)
+                }
             }
         }
     }
 }
 
-// MARK: - Modern Story Card
-struct ModernStoryCard: View {
-    let story: FeaturedStory
+// MARK: - Modern Story Card from Library
+struct ModernStoryCardFromLibrary: View {
+    let story: Story
     @State private var isPressed = false
+    
+    private var gradientColors: [Color] {
+        switch story.genre {
+        case .adventure: return [.orange, .red]
+        case .friendship: return [.green, .teal]
+        case .fantasy: return [.purple, .pink]
+        case .animals: return [.brown, .orange]
+        case .bedtime: return [.blue, .indigo]
+        }
+    }
+    
+    private var iconName: String {
+        switch story.genre {
+        case .adventure: return "map.fill"
+        case .friendship: return "heart.fill"
+        case .fantasy: return "sparkles"
+        case .animals: return "pawprint.fill"
+        case .bedtime: return "moon.fill"
+        }
+    }
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -314,7 +342,7 @@ struct ModernStoryCard: View {
                 RoundedRectangle(cornerRadius: DesignTokens.CornerRadius.large)
                     .fill(
                         LinearGradient(
-                            colors: story.gradient,
+                            colors: gradientColors,
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
                         )
@@ -322,7 +350,7 @@ struct ModernStoryCard: View {
                     .frame(width: 260, height: 170)
                 
                 // Pattern overlay
-                Image(systemName: story.image)
+                Image(systemName: iconName)
                     .font(.system(size: 80, weight: .ultraLight))
                     .foregroundStyle(.white.opacity(0.15))
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
@@ -347,7 +375,7 @@ struct ModernStoryCard: View {
                     .foregroundColor(DesignTokens.Colors.textPrimary)
                     .lineLimit(1)
                 
-                Text(story.subtitle)
+                Text(story.setting)
                     .font(DesignTokens.Typography.bodySmall)
                     .foregroundColor(DesignTokens.Colors.textSecondary)
                     .lineLimit(1)
