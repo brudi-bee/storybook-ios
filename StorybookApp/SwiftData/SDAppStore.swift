@@ -307,63 +307,39 @@ final class SDAppStore: ObservableObject {
     }
 
     private func ensureInitialLibraryStories() {
-        guard stories.isEmpty, let child = children.first, !child.name.isEmpty else { return }
+        guard let child = children.first, !child.name.isEmpty else { return }
 
         let baseName = child.name
         let pronoun = child.gender == .female ? "sie" : child.gender == .male ? "er" : "sie"
 
-        let story1 = Story(
-            title: "Die Karte der 7 Monde",
-            language: .de,
-            genre: .adventure,
-            setting: "Tal der Sternenbrücken",
-            moral: "Mut wächst, wenn man anderen hilft.",
-            scenes: buildScenes(title: "Die Karte der 7 Monde", hero: baseName, pronoun: pronoun, mood: "adventure")
-        )
+        let templates: [(title: String, setting: String, moral: String, mood: String)] = [
+            ("Die Karte der 7 Monde", "Tal der Sternenbrücken", "Mut wächst, wenn man anderen hilft.", "adventure"),
+            ("Das Geheimnis vom Leuchtturm", "Klippenhafen", "Gemeinsam findet man den Weg.", "calm"),
+            ("Die Brücke aus Morgenlicht", "Wolkenpass", "Vertrauen macht stark.", "peaceful"),
+            ("Das Rätsel der Himmelsuhr", "Turm der Wolkeninseln", "Geduld bringt Klarheit.", "calm"),
+            ("Der Weg durch den Funkenwald", "Funkenwald", "Mut und Freundlichkeit öffnen Türen.", "adventure")
+        ]
 
-        let story2 = Story(
-            title: "Das Geheimnis vom Leuchtturm",
-            language: .de,
-            genre: .adventure,
-            setting: "Klippenhafen",
-            moral: "Gemeinsam findet man den Weg.",
-            scenes: buildScenes(title: "Das Geheimnis vom Leuchtturm", hero: baseName, pronoun: pronoun, mood: "calm")
-        )
+        let existingTitles = Set(stories.map { $0.title })
+        var added = false
 
-        let story3 = Story(
-            title: "Die Brücke aus Morgenlicht",
-            language: .de,
-            genre: .adventure,
-            setting: "Wolkenpass",
-            moral: "Vertrauen macht stark.",
-            scenes: buildScenes(title: "Die Brücke aus Morgenlicht", hero: baseName, pronoun: pronoun, mood: "peaceful")
-        )
+        for t in templates where !existingTitles.contains(t.title) {
+            let story = Story(
+                title: t.title,
+                language: .de,
+                genre: .adventure,
+                setting: t.setting,
+                moral: t.moral,
+                scenes: buildScenes(title: t.title, hero: baseName, pronoun: pronoun, mood: t.mood)
+            )
+            modelContext.insert(story)
+            added = true
+        }
 
-        let story4 = Story(
-            title: "Das Rätsel der Himmelsuhr",
-            language: .de,
-            genre: .adventure,
-            setting: "Turm der Wolkeninseln",
-            moral: "Geduld bringt Klarheit.",
-            scenes: buildScenes(title: "Das Rätsel der Himmelsuhr", hero: baseName, pronoun: pronoun, mood: "calm")
-        )
-
-        let story5 = Story(
-            title: "Der Weg durch den Funkenwald",
-            language: .de,
-            genre: .adventure,
-            setting: "Funkenwald",
-            moral: "Mut und Freundlichkeit öffnen Türen.",
-            scenes: buildScenes(title: "Der Weg durch den Funkenwald", hero: baseName, pronoun: pronoun, mood: "adventure")
-        )
-
-        modelContext.insert(story1)
-        modelContext.insert(story2)
-        modelContext.insert(story3)
-        modelContext.insert(story4)
-        modelContext.insert(story5)
-        saveContext()
-        loadStories()
+        if added {
+            saveContext()
+            loadStories()
+        }
     }
 
     private func buildScenes(title: String, hero: String, pronoun: String, mood: String) -> [StoryScene] {
