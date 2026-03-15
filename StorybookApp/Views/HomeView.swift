@@ -586,6 +586,16 @@ extension View {
 
 // MARK: - Preview
 #Preview {
+    HomeView()
+        .environmentObject(SDAppStore())
+}
+) }
+        )
+    }
+}
+
+// MARK: - Preview
+#Preview {
     HomeView(onOpenLibraryTab: {})
         .environmentObject(SDAppStore())
 }
