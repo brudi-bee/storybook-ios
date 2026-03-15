@@ -9,7 +9,7 @@ struct ReaderView: View {
     
     @State private var currentPage: Int = 0
     @State private var musicOn = true
-    @State private var showMenu = false
+    @State private var sleepMinutes: Int = 0
     @State private var pageTransition: PageTransition = .none
     @State private var isAnimating = false
     
