@@ -49,9 +49,6 @@ struct HomeView: View {
             .sheet(item: $selectedStory) { story in
                 ReaderView(story: convertToDTO(story))
             }
-            .navigationDestination(isPresented: $showingLibrary) {
-                LibraryView()
-            }
             .alert("Kinderprofil benötigt", isPresented: $showNeedsChildAlert) {
                 Button("Zum Profil", role: .none) {
                     // Could trigger tab switch here
@@ -589,6 +586,6 @@ extension View {
 
 // MARK: - Preview
 #Preview {
-    HomeView()
+    HomeView(onOpenLibraryTab: {})
         .environmentObject(SDAppStore())
 }

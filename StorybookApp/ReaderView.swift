@@ -315,6 +315,9 @@ struct ReaderView: View {
         withAnimation(.easeInOut(duration: 0.4)) {
             currentPage -= 1
         }
+
+        store.audioManager.playPageTurn()
+        store.audioManager.playForScene(mood: story.scenes[max(currentPage, 0)].bgmMood)
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
             isAnimating = false
@@ -383,6 +386,10 @@ enum PageTransition {
     
     NavigationStack {
         ReaderView(story: sampleStory)
+            .environmentObject(SDAppStore())
+    }
+}
+mpleStory)
             .environmentObject(SDAppStore())
     }
 }

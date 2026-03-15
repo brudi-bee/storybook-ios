@@ -339,9 +339,29 @@ final class SDAppStore: ObservableObject {
             scenes: buildScenes(title: "Die Brücke aus Morgenlicht", hero: baseName, pronoun: pronoun, mood: "peaceful")
         )
 
+        let story4 = Story(
+            title: "Das Rätsel der Himmelsuhr",
+            language: .de,
+            genre: .adventure,
+            setting: "Turm der Wolkeninseln",
+            moral: "Geduld bringt Klarheit.",
+            scenes: buildScenes(title: "Das Rätsel der Himmelsuhr", hero: baseName, pronoun: pronoun, mood: "calm")
+        )
+
+        let story5 = Story(
+            title: "Der Weg durch den Funkenwald",
+            language: .de,
+            genre: .adventure,
+            setting: "Funkenwald",
+            moral: "Mut und Freundlichkeit öffnen Türen.",
+            scenes: buildScenes(title: "Der Weg durch den Funkenwald", hero: baseName, pronoun: pronoun, mood: "adventure")
+        )
+
         modelContext.insert(story1)
         modelContext.insert(story2)
         modelContext.insert(story3)
+        modelContext.insert(story4)
+        modelContext.insert(story5)
         saveContext()
         loadStories()
     }
