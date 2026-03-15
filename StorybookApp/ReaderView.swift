@@ -56,23 +56,25 @@ struct ReaderView: View {
                     .buttonStyle(.borderedProminent)
                 }
             } else {
-                // Top Navigation Bar
-                topBar
-                    .padding(.horizontal, 20)
-                    .padding(.top, 8)
-                
-                // Main Content Area
-                ZStack {
-                    // Illustration Area (70%)
-                    illustrationArea
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                VStack(spacing: 0) {
+                    // Top Navigation Bar
+                    topBar
+                        .padding(.horizontal, 20)
+                        .padding(.top, 8)
                     
-                    // Navigation Arrows
-                    navigationArrows
+                    // Main Content Area
+                    ZStack {
+                        // Illustration Area (70%)
+                        illustrationArea
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        
+                        // Navigation Arrows
+                        navigationArrows
+                    }
+                    
+                    // Text Card (30%)
+                    textCard
                 }
-                
-                // Text Card (30%)
-                textCard
             }
         }
         .navigationBarHidden(true)

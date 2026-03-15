@@ -297,10 +297,12 @@ struct LatestStoriesSection: View {
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: DesignTokens.Spacing.md) {
                         ForEach(stories) { story in
-                            ModernStoryCardFromLibrary(story: story)
-                                .onTapGesture {
-                                    onStoryTap(story)
-                                }
+                            Button {
+                                onStoryTap(story)
+                            } label: {
+                                ModernStoryCardFromLibrary(story: story)
+                            }
+                            .buttonStyle(.plain)
                         }
                     }
                     .padding(.horizontal, DesignTokens.Spacing.lg)
@@ -393,11 +395,8 @@ struct ModernStoryCardFromLibrary: View {
             x: 0,
             y: isPressed ? 8 : 4
         )
-        .scaleEffect(isPressed ? 0.97 : 1.0)
+        .scaleEffect(1.0)
         .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isPressed)
-        .onPressingChanged { pressing in
-            isPressed = pressing
-        }
     }
 }
 
