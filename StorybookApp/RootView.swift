@@ -12,7 +12,7 @@ struct RootView: View {
 
     var body: some View {
         TabView(selection: $selectedTab) {
-            HomeView()
+            HomeView(onOpenLibraryTab: { selectedTab = .library })
                 .tabItem { Label("Start", systemImage: "house.fill") }
                 .tag(RootTab.home)
 

@@ -125,7 +125,26 @@ struct ReaderView: View {
             .accessibilityLabel(musicOn ? "Musik aus" : "Musik an")
             
             // Menu Button
-            Button(action: { showMenu.toggle() }) {
+            Menu {
+                Button("Sleep Timer aus") {
+                    sleepMinutes = 0
+                    store.audioManager.cancelSleepTimer()
+                }
+                Button("Sleep Timer 10 min") {
+                    sleepMinutes = 10
+                    store.audioManager.setSleepTimer(minutes: 10)
+                }
+                Button("Sleep Timer 20 min") {
+                    sleepMinutes = 20
+                    store.audioManager.setSleepTimer(minutes: 20)
+                }
+                Button("Sleep Timer 30 min") {
+                    sleepMinutes = 30
+                    store.audioManager.setSleepTimer(minutes: 30)
+                }
+                Divider()
+                Button("Zur Bibliothek") { dismiss() }
+            } label: {
                 Image(systemName: "ellipsis")
                     .font(ProfessionalTheme.Typography.buttonFont)
                     .foregroundColor(ProfessionalTheme.Colors.textPrimary)

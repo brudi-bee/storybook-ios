@@ -37,7 +37,9 @@ struct HomeView: View {
                                 impactFeedback.impactOccurred()
                                 selectedStory = story
                             },
-                            onSeeAll: { showingLibrary = true }
+                            onSeeAll: {
+                                onOpenLibraryTab()
+                            }
                         )
                         .padding(.top, 32)
                         .padding(.bottom, 40)
@@ -204,7 +206,7 @@ struct HeroSection: View {
             }
             
             // Status Badge
-            if !hasChildren {
+            if childNames.isEmpty {
                 Button(action: onNeedsChild) {
                     HStack(spacing: 8) {
                         Image(systemName: "person.badge.plus")
@@ -586,6 +588,6 @@ extension View {
 
 // MARK: - Preview
 #Preview {
-    HomeView()
+    HomeView(onOpenLibraryTab: {})
         .environmentObject(SDAppStore())
 }
