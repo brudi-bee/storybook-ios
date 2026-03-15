@@ -3,7 +3,6 @@ import SwiftUI
 struct LibraryView: View {
     @EnvironmentObject var store: SDAppStore
     @State private var selectedStory: Story?
-    @State private var showBookOpenAnimation = false
     
     let columns = [
         GridItem(.flexible(), spacing: 16),

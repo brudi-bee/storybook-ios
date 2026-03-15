@@ -74,7 +74,6 @@ struct ReaderView: View {
                 // Text Card (30%)
                 textCard
             }
-            }
         }
         .navigationBarHidden(true)
         .onAppear {
